@@ -4,11 +4,9 @@ The Android Peace Corps volunteer openings app
 # Getting started
 If you are new to using git, go through the following short online tutorial. Using github for keeping up to date code is critical for wokring on team projects, *especially* with short timelines!
 
-[https://github.com/TeamGlobalApps/peace-corps-android.git](https://github.com/TeamGlobalApps/peace-corps-android.git)
+[https://try.github.io/levels/1/challenges/1](https://try.github.io/levels/1/challenges/1)
 
 Quick start: Run these commands either in a terminal (mac) or use a git shell donwloadable from github, such as [for windows](https://windows.github.com/) or [for mac](https://mac.github.com/).
-
-Note that xcode has it's own menu and operations for integrating with github which are convinient to use, so in that case you may not even have to download a client or use these git commands other than for the first cloning operations below.
 
 ```bash
 # downloads the current repository to your computer, and move into that directory
@@ -42,4 +40,4 @@ git commit -m "your comment here"
 git push origin master
 ```
 
-If there are issues, it's possible you forgot to pull first and the server is complaining your local copy is out of date! Try git pull and then git push in that case
+If there are issues, it's possible you forgot to pull first and the server is complaining your local copy is out of date! Try git pull and then git push in that case.
