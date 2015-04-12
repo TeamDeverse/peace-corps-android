@@ -11,6 +11,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -27,6 +28,14 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	private ListView listView;
 	private String [] arrayMenuItems;
 	private ActionBarDrawerToggle drawerListener;
+	
+	private ImageView [] arrayImageViewsRegions = new ImageView[9];
+	private ImageView [] arrayImageViewsSectors = new ImageView[7];
+	private int [] arraySelectedRegions = {1,0,0,0,0,0,0,0,0};
+	private int totalNumRegionsSelected = 1;
+	private int [] arraySelectedSectors = {1,0,0,0,0,0,0};
+	private int totalNumSectorsSelected = 1;
+
 	
 	AndroidApplicationSupportUtility supportUtility = null;
 	ActionBarDrawerToggle mDrawerToggle = null;
@@ -92,8 +101,49 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	    		tvRegionItemCaption.setTextColor(Color.WHITE);
 	    		tvRegionItemCaption.setTextSize(10);
 	    		tvRegionItemCaption.setGravity(Gravity.CENTER | Gravity.BOTTOM);
-	    	ImageView ivRegionItemHighlight = new ImageView(this);
+	    	final ImageView ivRegionItemHighlight = new ImageView(this);
+	    		arrayImageViewsRegions[i] = ivRegionItemHighlight;
 	    		ivRegionItemHighlight.setBackgroundColor(Color.argb(0,0,0,0));
+	    			if(i == 0){
+	    				ivRegionItemHighlight.setBackgroundColor(Color.argb(150,120,0,0));
+	    			}
+    			final int index = i;
+	    		ivRegionItemHighlight.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						if(arraySelectedRegions[index] == 0){
+							arraySelectedRegions[index] = 1;
+							totalNumRegionsSelected += 1;
+		    				ivRegionItemHighlight.setBackgroundColor(Color.argb(150,120,0,0));
+		    				
+							if(index == 0){
+								totalNumRegionsSelected = 1;
+								for(int j = 1; j<9; j++){
+									arraySelectedRegions[j] = 0;
+						    		arrayImageViewsRegions[j].setBackgroundColor(Color.argb(0,0,0,0));
+								}
+							}
+							else{
+								if(arraySelectedRegions[0] == 1){
+									arraySelectedRegions[0] = 0;
+									totalNumRegionsSelected -= 1;
+						    		arrayImageViewsRegions[0].setBackgroundColor(Color.argb(0,0,0,0));
+								}
+							}
+						}
+						else{
+							if(totalNumRegionsSelected > 1){
+								arraySelectedRegions[index] = 0;
+								totalNumRegionsSelected -= 1;
+					    		ivRegionItemHighlight.setBackgroundColor(Color.argb(0,0,0,0));
+							}
+							
+
+						}	
+						ivRegionItemHighlight.postInvalidate();
+					}
+				});	    		
 	    	llRegionItem.addView(tvRegionItemCaption, supportUtility.pointScreenDimensions.x/4, supportUtility.pointScreenDimensions.x/4);
 	    	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(supportUtility.pointScreenDimensions.x/4, supportUtility.pointScreenDimensions.x/4);
 	    		params.leftMargin = -supportUtility.pointScreenDimensions.x/4;
@@ -121,8 +171,49 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
     		tvSectorItemCaption.setTextSize(10);
     		tvSectorItemCaption.setTextColor(Color.WHITE);	
     		tvSectorItemCaption.setGravity(Gravity.CENTER | Gravity.BOTTOM);
-    	ImageView ivSectorItemHighlight = new ImageView(this);
+    	final ImageView ivSectorItemHighlight = new ImageView(this);
+			arrayImageViewsSectors[i] = ivSectorItemHighlight;
     		ivSectorItemHighlight.setBackgroundColor(Color.argb(0,0,0,0));
+				if(i == 0){
+					ivSectorItemHighlight.setBackgroundColor(Color.argb(150,120,0,0));
+				}
+			final int index = i;
+			ivSectorItemHighlight.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					if(arraySelectedSectors[index] == 0){
+						arraySelectedSectors[index] = 1;
+						totalNumSectorsSelected += 1;
+						ivSectorItemHighlight.setBackgroundColor(Color.argb(150,120,0,0));
+						
+						if(index == 0){
+							totalNumSectorsSelected = 1;
+							for(int j = 1; j<7; j++){
+								arraySelectedSectors[j] = 0;
+								arrayImageViewsSectors[j].setBackgroundColor(Color.argb(0,0,0,0));
+							}
+						}		
+						else{
+							if(arraySelectedSectors[0] == 1){
+								arraySelectedSectors[0] = 0;
+								totalNumSectorsSelected -= 1;
+					    		arrayImageViewsSectors[0].setBackgroundColor(Color.argb(0,0,0,0));
+							}
+						}
+					}
+					else{
+						if(arraySelectedSectors[0] == 1 || totalNumSectorsSelected > 1){
+							arraySelectedSectors[index] = 0;
+							totalNumSectorsSelected -= 1;
+							ivSectorItemHighlight.setBackgroundColor(Color.argb(0,0,0,0));
+						}
+						
+
+					}	
+					ivSectorItemHighlight.postInvalidate();
+				}
+			});
     	llSectorItem.addView(tvSectorItemCaption, supportUtility.pointScreenDimensions.x/4, supportUtility.pointScreenDimensions.x/4);
     	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(supportUtility.pointScreenDimensions.x/4, supportUtility.pointScreenDimensions.x/4);
     		params.leftMargin = -supportUtility.pointScreenDimensions.x/4;
@@ -194,7 +285,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
         	};
         	drawerLayout.setDrawerListener(mDrawerToggle);
         listView = (ListView)findViewById(R.id.drawerList);
-        	listView.setAdapter(new ArrayAdapter<String>(this, R.layout.menuitem, arrayMenuItems));
+        	listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, arrayMenuItems));
         	listView.setOnItemClickListener(this);
         
         getSupportActionBar().setHomeButtonEnabled(true);
