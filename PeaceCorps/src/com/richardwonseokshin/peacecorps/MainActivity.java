@@ -10,8 +10,10 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -87,6 +89,119 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		final LinearLayout llSearchRegionAndSector = new LinearLayout(this);
 			llSearchRegionAndSector.setOrientation(LinearLayout.VERTICAL);
 			llSearchRegionAndSector.setBackgroundResource(R.drawable.blackgradient);
+			
+		LinearLayout llTabBar = new LinearLayout(this);
+			llTabBar.setBackgroundColor(Color.BLACK);
+			llTabBar.setOrientation(LinearLayout.HORIZONTAL);
+			final ImageView ivTabBarItem1 = new ImageView(this);
+			final ImageView ivTabBarItem2 = new ImageView(this);
+			final ImageView ivTabBarItem3 = new ImageView(this);
+			final ImageView ivTabBarItem4 = new ImageView(this);
+			final ImageView ivTabBarItem5 = new ImageView(this);
+			ivTabBarItem1.setBackgroundColor(Color.BLUE);
+			ivTabBarItem2.setBackgroundColor(Color.CYAN);
+			ivTabBarItem3.setBackgroundColor(Color.GREEN);
+			ivTabBarItem4.setBackgroundColor(Color.YELLOW);
+			ivTabBarItem5.setBackgroundColor(Color.MAGENTA);
+			llTabBar.addView(ivTabBarItem1, supportUtility.pointScreenDimensions.x/5, supportUtility.getActionBarHeight());
+			llTabBar.addView(ivTabBarItem2, supportUtility.pointScreenDimensions.x/5, supportUtility.getActionBarHeight());
+			llTabBar.addView(ivTabBarItem3, supportUtility.pointScreenDimensions.x/5, supportUtility.getActionBarHeight());
+			llTabBar.addView(ivTabBarItem4, supportUtility.pointScreenDimensions.x/5, supportUtility.getActionBarHeight());
+			llTabBar.addView(ivTabBarItem5, supportUtility.pointScreenDimensions.x/5, supportUtility.getActionBarHeight());
+			llSearchRegionAndSector.addView(llTabBar, supportUtility.pointScreenDimensions.x, supportUtility.getActionBarHeight());
+			ivTabBarItem1.setOnTouchListener(new OnTouchListener() {
+				
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					switch(event.getAction()){
+						case MotionEvent.ACTION_DOWN: 
+							ivTabBarItem1.setBackgroundColor(Color.RED);
+							ivTabBarItem1.postInvalidate();
+							break;
+						case MotionEvent.ACTION_MOVE: break;
+						case MotionEvent.ACTION_UP: 
+							ivTabBarItem1.setBackgroundColor(Color.BLUE);
+							ivTabBarItem1.postInvalidate();
+						    break;
+					}
+					return true;
+				}
+			});
+			ivTabBarItem2.setOnTouchListener(new OnTouchListener() {
+				
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					switch(event.getAction()){
+						case MotionEvent.ACTION_DOWN: 
+							ivTabBarItem2.setBackgroundColor(Color.RED);
+							ivTabBarItem2.postInvalidate();
+							break;
+						case MotionEvent.ACTION_MOVE: break;
+						case MotionEvent.ACTION_UP: 
+							ivTabBarItem2.setBackgroundColor(Color.CYAN);
+							ivTabBarItem2.postInvalidate();
+						    break;
+					}
+					return true;
+				}
+			});
+			ivTabBarItem3.setOnTouchListener(new OnTouchListener() {
+				
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					switch(event.getAction()){
+						case MotionEvent.ACTION_DOWN: 
+							ivTabBarItem3.setBackgroundColor(Color.RED);
+							ivTabBarItem3.postInvalidate();
+							break;
+						case MotionEvent.ACTION_MOVE: break;
+						case MotionEvent.ACTION_UP: 
+							ivTabBarItem3.setBackgroundColor(Color.GREEN);
+							ivTabBarItem3.postInvalidate();
+						    break;
+					}
+					return true;
+				}
+			});
+			ivTabBarItem4.setOnTouchListener(new OnTouchListener() {
+				
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					switch(event.getAction()){
+						case MotionEvent.ACTION_DOWN: 
+							ivTabBarItem4.setBackgroundColor(Color.RED);
+							ivTabBarItem4.postInvalidate();
+							break;
+						case MotionEvent.ACTION_MOVE: break;
+						case MotionEvent.ACTION_UP: 
+							ivTabBarItem4.setBackgroundColor(Color.YELLOW);
+							ivTabBarItem4.postInvalidate();
+						    break;
+					}
+					return true;
+				}
+			});
+			ivTabBarItem5.setOnTouchListener(new OnTouchListener() {
+				
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					switch(event.getAction()){
+						case MotionEvent.ACTION_DOWN: 
+							ivTabBarItem5.setBackgroundColor(Color.RED);
+							ivTabBarItem5.postInvalidate();
+							break;
+						case MotionEvent.ACTION_MOVE: break;
+						case MotionEvent.ACTION_UP: 
+							ivTabBarItem5.setBackgroundColor(Color.MAGENTA);
+							ivTabBarItem5.postInvalidate();
+						    break;
+					}
+					return true;
+				}
+			});
+		    
+		    //llSearchRegionAndSector
+			
 	    final LinearLayout llRegions = new LinearLayout(this);
 	    	llRegions.setOrientation(LinearLayout.HORIZONTAL);
 	    	llRegions.setPadding(0, 8, 0, 8);
@@ -235,23 +350,54 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		tvHeader.setBackgroundColor(Color.argb(0,0,0,0));
 		tvHeader.setTextSize(16);
 		tvHeader.setTextColor(Color.WHITE);
-	llSearchRegionAndSector.addView(tvHeader);
+	llSearchRegionAndSector.addView(tvHeader, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/16);
 		TextView tvRegionHeader = new TextView(this);
 		tvRegionHeader.setText("Select Region(s)");
-		tvRegionHeader.setGravity(Gravity.LEFT);
+		tvRegionHeader.setGravity(Gravity.LEFT | Gravity.BOTTOM);
 		tvRegionHeader.setBackgroundColor(Color.argb(0,0,0,0));
 		tvRegionHeader.setTextSize(12);
 		tvRegionHeader.setTextColor(Color.CYAN);
-	llSearchRegionAndSector.addView(tvRegionHeader);
-    llSearchRegionAndSector.addView(hsvRegions);//, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/4+16);
+	llSearchRegionAndSector.addView(tvRegionHeader, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/16);
+    llSearchRegionAndSector.addView(hsvRegions, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/4);//, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/4+16);
 		TextView tvSectorHeader = new TextView(this);
 		tvSectorHeader.setText("Select Sector(s)");
-		tvSectorHeader.setGravity(Gravity.LEFT);
+		tvSectorHeader.setGravity(Gravity.LEFT | Gravity.BOTTOM);
 		tvSectorHeader.setBackgroundColor(Color.argb(0,0,0,0));
 		tvSectorHeader.setTextSize(12);
 		tvSectorHeader.setTextColor(Color.GREEN);
-	llSearchRegionAndSector.addView(tvSectorHeader);
-    llSearchRegionAndSector.addView(hsvSectors);//, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/4+16);
+	llSearchRegionAndSector.addView(tvSectorHeader, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/16);
+    llSearchRegionAndSector.addView(hsvSectors, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/4);//, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/4+16);
+    
+    View vPaddingSearchButtong = new View(this);
+    vPaddingSearchButtong.setBackgroundColor(Color.argb(0,0,0,0));
+    llSearchRegionAndSector.addView(vPaddingSearchButtong, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/32);
+    
+    final TextView tvSearchButton = new TextView(this);
+    tvSearchButton.setText("Search Opportunities >");
+    tvSearchButton.setTextColor(Color.WHITE);
+    tvSearchButton.setTextSize(16);
+    tvSearchButton.setGravity(Gravity.CENTER);
+    tvSearchButton.setBackgroundColor(Color.argb(255,204,102,51));
+    tvSearchButton.setOnTouchListener(new OnTouchListener() {
+		
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			switch(event.getAction()){
+				case MotionEvent.ACTION_DOWN: 
+				    tvSearchButton.setBackgroundColor(Color.argb(255,164,62,11));
+				    tvSearchButton.postInvalidate();
+					break;
+				case MotionEvent.ACTION_MOVE: break;
+				case MotionEvent.ACTION_UP: 
+				    tvSearchButton.setBackgroundColor(Color.argb(255,204,102,51));
+				    tvSearchButton.postInvalidate();
+				    break;
+			}
+			return true;
+		}
+	});
+    
+    llSearchRegionAndSector.addView(tvSearchButton, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/8);
 
 		
 		new Handler().postDelayed(new Runnable() {
