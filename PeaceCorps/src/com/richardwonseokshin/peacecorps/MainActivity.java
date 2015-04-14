@@ -1,5 +1,18 @@
 package com.richardwonseokshin.peacecorps;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -22,6 +35,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +48,28 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	private ImageView [] arrayImageViewsRegions = new ImageView[9];
 	private ImageView [] arrayImageViewsSectors = new ImageView[7];
 	private int [] arraySelectedRegions = {1,0,0,0,0,0,0,0,0};
+	private String [] arrayRegionSlugs = {
+			"Lazy Manual Loading", //anywhere
+			"africa",//Africa
+			"asia",//Asia
+			"centralamerica",//Central America and Mexico
+			"easteurope",//Eastern Europe and Central Asia
+			"northafr",//North Africa and the Middle East
+			"pacificislands",//Pacific Island
+			"southamerica",//South America
+			"caribbean"//The Caribbean
+	};
+	
+	private String [] arraySectorSlugs = {
+			"Lazy Manual Loading", //anything
+			"agriculture",
+			"community+economic+development",
+			"education",
+			"environment",
+			"health",
+			"youth+in+development"
+	};
+
 	private int totalNumRegionsSelected = 1;
 	private int [] arraySelectedSectors = {1,0,0,0,0,0,0};
 	private int totalNumSectorsSelected = 1;
@@ -318,7 +354,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 						}
 					}
 					else{
-						if(arraySelectedSectors[0] == 1 || totalNumSectorsSelected > 1){
+						if(totalNumSectorsSelected > 1){
 							arraySelectedSectors[index] = 0;
 							totalNumSectorsSelected -= 1;
 							ivSectorItemHighlight.setBackgroundColor(Color.argb(0,0,0,0));
@@ -391,6 +427,59 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 				case MotionEvent.ACTION_UP: 
 				    tvSearchButton.setBackgroundColor(Color.argb(255,204,102,51));
 				    tvSearchButton.postInvalidate();
+				    
+				    // Example http get request for regions: http://www.peacecorps.gov/api/v1/geography/regions/?region=easteurope&region=africa
+				    // Example http get request for openings: http://www.peacecorps.gov/api/v1/openings/?region=asia&region=africa&sector=education
+				    //http://www.peacecorps.gov/api/v1/openings/?region=asia&sector=youth%20in%20development
+				    String htmlQueryBaseURL = "http://www.peacecorps.gov/api/v1/openings/?";
+				    String htmlQueryURL = ""; 
+				    int numRegionsSelected = 0;
+				    for(int i = 1; i < 9; i++){
+				    	if(arraySelectedRegions[0] == 1){//user selected "anywhere", combine all other regions
+				    		if(i == 1){
+				    			htmlQueryURL = htmlQueryURL + "region=" + arrayRegionSlugs[i];
+				    		}
+				    		else{
+				    			htmlQueryURL = htmlQueryURL + "&region=" + arrayRegionSlugs[i];
+				    		}
+				    	}
+				    	else{//user selected 1 or more regions, but did not select "anywhere"
+					    	if(arraySelectedRegions[i] == 1){
+					    		if(numRegionsSelected == 0){
+					    			htmlQueryURL = htmlQueryURL + "region=" + arrayRegionSlugs[i];
+					    		}
+					    		else{
+					    			htmlQueryURL = htmlQueryURL + "&region=" + arrayRegionSlugs[i];
+					    		}
+				    			numRegionsSelected += 1;
+					    	}
+				    	}
+				    }
+				    
+				    for(int i = 1; i < 7; i++){
+				    	if(arraySelectedSectors[0] == 1){//user selected "anywhere", combine all other regions
+				    		htmlQueryURL = htmlQueryURL + "&sector=" + arraySectorSlugs[i];
+				    	}
+				    	else if(arraySelectedSectors[i] == 1){//user selected 1 or more regions, but did not select "anywhere"
+					    	htmlQueryURL = htmlQueryURL + "&sector=" + arraySectorSlugs[i];
+				    	}
+				    }
+				    
+				    //http://www.peacecorps.gov/api/v1/geography/countries/?sector=health&region=asia
+
+				    htmlQueryURL += "&current=true";
+				    
+				    /*
+					try {
+						htmlQueryURL = URLEncoder.encode(htmlQueryURL, "UTF-8");
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					}
+					*/
+					
+					htmlQueryURL = htmlQueryBaseURL + htmlQueryURL;
+				
+				    getHTML(htmlQueryURL);
 				    break;
 			}
 			return true;
@@ -409,6 +498,16 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 				flMainScreen.postInvalidate();
 			}
 		}, 1500);
+		
+		tvHTML = new TextView(this);
+		tvHTML.setBackgroundColor(Color.YELLOW);
+		tvHTML.setTextColor(Color.BLACK);
+		LinearLayout llHTML = new LinearLayout(this);
+		llHTML.addView(tvHTML);//, supportUtility.pointScreenDimensions.x, (int) (supportUtility.pointScreenDimensions.y - supportUtility.getActionBarHeight()*2 - 3/16*supportUtility.pointScreenDimensions.x/4 - 2.5 * supportUtility.pointScreenDimensions.x/4  - 1/32 * supportUtility.pointScreenDimensions.x/4));
+		ScrollView svHTML = new ScrollView(this);
+		svHTML.addView(llHTML);
+		svHTML.setFillViewport(true);
+		llSearchRegionAndSector.addView(svHTML, supportUtility.pointScreenDimensions.x, (int) (supportUtility.pointScreenDimensions.y - supportUtility.getActionBarHeight()*2 - 3/16*supportUtility.pointScreenDimensions.x/4 - 2.5 * supportUtility.pointScreenDimensions.x/4  - 1/32 * supportUtility.pointScreenDimensions.x/4 - supportUtility.getSoftbuttonsbarHeight()));
 		//setContentView(R.layout.activity_main);
         
         arrayMenuItems = getResources().getStringArray(R.array.menuitems);
@@ -531,6 +630,117 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		getSupportActionBar().setTitle(title);
 	}
 	
-	
+	ArrayList<OpeningInformation>alOpeningsInformation = new ArrayList<OpeningInformation>();
+	TextView tvHTML = null;
+	public void getHTMLOnComplete(final String result){	
+		
+		alOpeningsInformation.clear();
+		
+		JSONObject jObject = null;
+		try {
+			jObject = new JSONObject(result);
+			JSONArray jArray = jObject.getJSONArray("results");
+			//JSONArray jArray = new JSONArray(result);
+			for (int i=0; i < jArray.length(); i++)
+			{
+			    try {
+			    	OpeningInformation openingInformation = new OpeningInformation();
+			    	alOpeningsInformation.add(openingInformation);
+			    	
+			        JSONObject currentJSONObject = jArray.getJSONObject(i);
+			        // Pulling items from the array
+			        
+			        openingInformation.title = currentJSONObject.getString("title");
+			        openingInformation.req_id = currentJSONObject.getString("req_id");
+			        openingInformation.country = currentJSONObject.getString("country");
+			        openingInformation.region = currentJSONObject.getString("region");
+			        openingInformation.sector = currentJSONObject.getString("sector");
+			        openingInformation.apply_date = currentJSONObject.getString("apply_date");
+			        openingInformation.know_date = currentJSONObject.getString("know_date");
+			        openingInformation.staging_start_date = currentJSONObject.getString("staging_start_date");
+			        openingInformation.featured = currentJSONObject.getBoolean("featured");
+			        openingInformation.project_description = currentJSONObject.getString("project_description");
+			        openingInformation.required_skills = currentJSONObject.getString("required_skills");
+			        openingInformation.desired_skills = currentJSONObject.getString("desired_skills");
+			        openingInformation.language_skills = currentJSONObject.getString("language_skills");
+			        openingInformation.language_skills_comments = currentJSONObject.getString("language_skills_comments");
+			        openingInformation.volunteers_requested = currentJSONObject.getInt("volunteers_requested");
+			        openingInformation.accepts_couples = currentJSONObject.getBoolean("accepts_couples");
+			        openingInformation.living_conditions_comments = currentJSONObject.getString("living_conditions_comments");
+			        openingInformation.country_medical_considerations = currentJSONObject.getString("country_medical_considerations");
+			        openingInformation.country_site_url = currentJSONObject.getString("country_site_url");
+			        openingInformation.country_flag_image = currentJSONObject.getString("country_flag_image");
+			        openingInformation.opening_url = currentJSONObject.getString("opening_url");
+			    } catch (JSONException e) {
+			    }
+			}
+		} 
+		catch (JSONException e) {e.printStackTrace();}
+		
+		
+		runOnUiThread(new Runnable() {		
+			@Override
+			public void run() {
+				String openingInformation = "Total Number of Openings: " + alOpeningsInformation.size() + "\n";
+				for(int i = 0; i < alOpeningsInformation.size(); i++){
+					openingInformation =openingInformation + "Opening #: " + i + "\n";
+					openingInformation = openingInformation + alOpeningsInformation.get(i).toString() + "\n";
+					openingInformation += "\n\n-----------------\n\n";
+				}
+				tvHTML.setText(openingInformation);		
+				tvHTML.postInvalidate();
+			}
+		});
+		
+		
+		/*
+		runOnUiThread(new Runnable() {		
+			@Override
+			public void run() {
+				tvHTML.setText(result);		
+				tvHTML.postInvalidate();
+			}
+		});
+		*/
+	}
+
+	Thread threadGetHTML;
+    public void getHTML(final String urlToRead) {	  
+    	threadGetHTML = new Thread(){
+			@Override
+			public void run() {
+				super.run();
+		    	URL url;
+		    	HttpURLConnection conn;
+		    	BufferedReader rd;
+		    	String line;
+		    	String result = "";
+		    	try {
+		    		url = new URL(urlToRead);
+		    		conn = (HttpURLConnection) url.openConnection();
+		    		conn.setRequestMethod("GET");
+		    		
+		    		rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+		         
+		    		while ((line = rd.readLine()) != null) {
+		    			result += line;
+		    		}
+		    		
+		    		rd.close();
+		    	} 
+		    	catch (IOException e) {e.printStackTrace();} 
+		    	catch (Exception e) {e.printStackTrace();}		    			    	   
+		    	
+		    	getHTMLOnComplete(result);
+		    	
+		    	try {
+					threadGetHTML.join();
+				} 
+		    	catch (InterruptedException e) {e.printStackTrace();}
+			}    		
+    	};
+    	threadGetHTML.start();
+   }
+    
 
 }
