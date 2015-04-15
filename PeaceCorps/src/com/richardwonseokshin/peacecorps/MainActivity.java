@@ -3,8 +3,10 @@ package com.richardwonseokshin.peacecorps;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -26,7 +28,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
-import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -43,17 +44,6 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	private ListView listView;
 	private String [] arrayMenuItems;
 	private ActionBarDrawerToggle drawerListener;
-	
-    LinearLayout llSearchRegionAndSector;
-    LinearLayout llBackgroundRegionSectorSearchResults;
-    LinearLayout llBackgroundTab3;
-    LinearLayout llBackgroundTab4;
-    LinearLayout llBackgroundTab5;
-	ImageView ivTabBarItem1;
-	ImageView ivTabBarItem2;
-	ImageView ivTabBarItem3;
-	ImageView ivTabBarItem4;
-	ImageView ivTabBarItem5;
 	
 	private ImageView [] arrayImageViewsRegions = new ImageView[9];
 	private ImageView [] arrayImageViewsSectors = new ImageView[7];
@@ -126,64 +116,48 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		supportUtility = new AndroidApplicationSupportUtility(this);
 
         drawerLayout = (DrawerLayout)findViewById(R.id.drawerLayout);
-		final LinearLayout llMainScreen = (LinearLayout)drawerLayout.getChildAt(0);
+		final LinearLayout flMainScreen = (LinearLayout)drawerLayout.getChildAt(0);
 		final ImageView ivSplash = new ImageView(this);
 			ivSplash.setBackgroundResource(R.drawable.splashscreen);
-			llMainScreen.addView(ivSplash);
+			flMainScreen.addView(ivSplash);
 			
 
-		llSearchRegionAndSector = new LinearLayout(this);
+		final LinearLayout llSearchRegionAndSector = new LinearLayout(this);
 			llSearchRegionAndSector.setOrientation(LinearLayout.VERTICAL);
 			llSearchRegionAndSector.setBackgroundResource(R.drawable.blackgradient);
 			
-		final LinearLayout llTabBar = new LinearLayout(this);
+		LinearLayout llTabBar = new LinearLayout(this);
 			llTabBar.setBackgroundColor(Color.BLACK);
 			llTabBar.setOrientation(LinearLayout.HORIZONTAL);
-			ivTabBarItem1 = new ImageView(this);
-			ivTabBarItem2 = new ImageView(this);
-			ivTabBarItem3 = new ImageView(this);
-			ivTabBarItem4 = new ImageView(this);
-			ivTabBarItem5 = new ImageView(this);
-			ivTabBarItem1.setBackgroundColor(Color.argb(255, 220, 220, 220));
-			ivTabBarItem2.setBackgroundColor(Color.argb(255, 200, 200, 200));
-			ivTabBarItem3.setBackgroundColor(Color.argb(255, 180, 180, 180));
-			ivTabBarItem4.setBackgroundColor(Color.argb(255, 160, 160, 160));
-			ivTabBarItem5.setBackgroundColor(Color.argb(255, 140, 140, 140));
+			final ImageView ivTabBarItem1 = new ImageView(this);
+			final ImageView ivTabBarItem2 = new ImageView(this);
+			final ImageView ivTabBarItem3 = new ImageView(this);
+			final ImageView ivTabBarItem4 = new ImageView(this);
+			final ImageView ivTabBarItem5 = new ImageView(this);
+			ivTabBarItem1.setBackgroundColor(Color.BLUE);
+			ivTabBarItem2.setBackgroundColor(Color.CYAN);
+			ivTabBarItem3.setBackgroundColor(Color.GREEN);
+			ivTabBarItem4.setBackgroundColor(Color.YELLOW);
+			ivTabBarItem5.setBackgroundColor(Color.MAGENTA);
 			llTabBar.addView(ivTabBarItem1, supportUtility.pointScreenDimensions.x/5, supportUtility.getActionBarHeight());
 			llTabBar.addView(ivTabBarItem2, supportUtility.pointScreenDimensions.x/5, supportUtility.getActionBarHeight());
 			llTabBar.addView(ivTabBarItem3, supportUtility.pointScreenDimensions.x/5, supportUtility.getActionBarHeight());
 			llTabBar.addView(ivTabBarItem4, supportUtility.pointScreenDimensions.x/5, supportUtility.getActionBarHeight());
 			llTabBar.addView(ivTabBarItem5, supportUtility.pointScreenDimensions.x/5, supportUtility.getActionBarHeight());
+			llSearchRegionAndSector.addView(llTabBar, supportUtility.pointScreenDimensions.x, supportUtility.getActionBarHeight());
 			ivTabBarItem1.setOnTouchListener(new OnTouchListener() {
 				
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
 					switch(event.getAction()){
 						case MotionEvent.ACTION_DOWN: 
-							ivTabBarItem1.setBackgroundColor(Color.GRAY);
+							ivTabBarItem1.setBackgroundColor(Color.RED);
 							ivTabBarItem1.postInvalidate();
 							break;
 						case MotionEvent.ACTION_MOVE: break;
 						case MotionEvent.ACTION_UP: 
 							ivTabBarItem1.setBackgroundColor(Color.BLUE);
-							
-							ivTabBarItem2.setBackgroundColor(Color.argb(255, 200, 200, 200));
-							ivTabBarItem3.setBackgroundColor(Color.argb(255, 180, 180, 180));
-							ivTabBarItem4.setBackgroundColor(Color.argb(255, 160, 160, 160));
-							ivTabBarItem5.setBackgroundColor(Color.argb(255, 140, 140, 140));
-
 							ivTabBarItem1.postInvalidate();
-							ivTabBarItem2.postInvalidate();
-							ivTabBarItem3.postInvalidate();
-							ivTabBarItem4.postInvalidate();
-							ivTabBarItem5.postInvalidate();
-							
-							
-							TranslateAnimation anim = new TranslateAnimation(-supportUtility.pointScreenDimensions.x, 0, 0, 0);
-							anim.setDuration(800);
-							llSearchRegionAndSector.startAnimation(anim);
-							llSearchRegionAndSector.setVisibility(View.VISIBLE);							
-							llBackgroundRegionSectorSearchResults.setVisibility(View.VISIBLE);														
 						    break;
 					}
 					return true;
@@ -195,29 +169,13 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 				public boolean onTouch(View v, MotionEvent event) {
 					switch(event.getAction()){
 						case MotionEvent.ACTION_DOWN: 
-							ivTabBarItem2.setBackgroundColor(Color.GRAY);
+							ivTabBarItem2.setBackgroundColor(Color.RED);
 							ivTabBarItem2.postInvalidate();
 							break;
 						case MotionEvent.ACTION_MOVE: break;
 						case MotionEvent.ACTION_UP: 
 							ivTabBarItem2.setBackgroundColor(Color.CYAN);
-							
-							ivTabBarItem1.setBackgroundColor(Color.argb(255, 220, 220, 220));
-							ivTabBarItem3.setBackgroundColor(Color.argb(255, 180, 180, 180));
-							ivTabBarItem4.setBackgroundColor(Color.argb(255, 160, 160, 160));
-							ivTabBarItem5.setBackgroundColor(Color.argb(255, 140, 140, 140));
-
-							ivTabBarItem1.postInvalidate();
 							ivTabBarItem2.postInvalidate();
-							ivTabBarItem3.postInvalidate();
-							ivTabBarItem4.postInvalidate();
-							ivTabBarItem5.postInvalidate();
-							
-							TranslateAnimation anim = new TranslateAnimation(supportUtility.pointScreenDimensions.x, 0, 0, 0);
-							anim.setDuration(800);
-							llBackgroundRegionSectorSearchResults.startAnimation(anim);
-							llBackgroundRegionSectorSearchResults.setVisibility(View.VISIBLE);							
-							llSearchRegionAndSector.setVisibility(View.GONE);		
 						    break;
 					}
 					return true;
@@ -229,23 +187,14 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 				public boolean onTouch(View v, MotionEvent event) {
 					switch(event.getAction()){
 						case MotionEvent.ACTION_DOWN: 
-							ivTabBarItem3.setBackgroundColor(Color.GRAY);
+							ivTabBarItem3.setBackgroundColor(Color.RED);
 							ivTabBarItem3.postInvalidate();
 							break;
 						case MotionEvent.ACTION_MOVE: break;
 						case MotionEvent.ACTION_UP: 
 							ivTabBarItem3.setBackgroundColor(Color.GREEN);
-							
-							ivTabBarItem1.setBackgroundColor(Color.argb(255, 220, 220, 220));
-							ivTabBarItem2.setBackgroundColor(Color.argb(255, 200, 200, 200));
-							ivTabBarItem4.setBackgroundColor(Color.argb(255, 160, 160, 160));
-							ivTabBarItem5.setBackgroundColor(Color.argb(255, 140, 140, 140));
-
-							ivTabBarItem1.postInvalidate();
-							ivTabBarItem2.postInvalidate();
-							ivTabBarItem4.postInvalidate();
-							ivTabBarItem5.postInvalidate();
-							break;
+							ivTabBarItem3.postInvalidate();
+						    break;
 					}
 					return true;
 				}
@@ -256,24 +205,14 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 				public boolean onTouch(View v, MotionEvent event) {
 					switch(event.getAction()){
 						case MotionEvent.ACTION_DOWN: 
-							ivTabBarItem4.setBackgroundColor(Color.GRAY);
+							ivTabBarItem4.setBackgroundColor(Color.RED);
 							ivTabBarItem4.postInvalidate();
 							break;
 						case MotionEvent.ACTION_MOVE: break;
 						case MotionEvent.ACTION_UP: 
 							ivTabBarItem4.setBackgroundColor(Color.YELLOW);
-							
-							ivTabBarItem1.setBackgroundColor(Color.argb(255, 220, 220, 220));
-							ivTabBarItem2.setBackgroundColor(Color.argb(255, 200, 200, 200));
-							ivTabBarItem3.setBackgroundColor(Color.argb(255, 180, 180, 180));
-							ivTabBarItem5.setBackgroundColor(Color.argb(255, 140, 140, 140));
-
-							ivTabBarItem1.postInvalidate();
-							ivTabBarItem2.postInvalidate();
-							ivTabBarItem3.postInvalidate();
 							ivTabBarItem4.postInvalidate();
-							ivTabBarItem5.postInvalidate();
-							break;
+						    break;
 					}
 					return true;
 				}
@@ -284,22 +223,12 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 				public boolean onTouch(View v, MotionEvent event) {
 					switch(event.getAction()){
 						case MotionEvent.ACTION_DOWN: 
-							ivTabBarItem5.setBackgroundColor(Color.GRAY);
+							ivTabBarItem5.setBackgroundColor(Color.RED);
 							ivTabBarItem5.postInvalidate();
 							break;
 						case MotionEvent.ACTION_MOVE: break;
 						case MotionEvent.ACTION_UP: 
 							ivTabBarItem5.setBackgroundColor(Color.MAGENTA);
-							
-							ivTabBarItem1.setBackgroundColor(Color.argb(255, 220, 220, 220));
-							ivTabBarItem2.setBackgroundColor(Color.argb(255, 200, 200, 200));
-							ivTabBarItem3.setBackgroundColor(Color.argb(255, 180, 180, 180));
-							ivTabBarItem4.setBackgroundColor(Color.argb(255, 160, 160, 160));
-
-							ivTabBarItem1.postInvalidate();
-							ivTabBarItem2.postInvalidate();
-							ivTabBarItem3.postInvalidate();
-							ivTabBarItem4.postInvalidate();
 							ivTabBarItem5.postInvalidate();
 						    break;
 					}
@@ -558,62 +487,27 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	});
     
     llSearchRegionAndSector.addView(tvSearchButton, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/8);
-    
-    
-    
-    final LinearLayout llMainFrameCollection = new LinearLayout(this);
- // Disable Scrolling by setting up an OnTouchListener to do nothing
 
-    
-    llBackgroundRegionSectorSearchResults = new LinearLayout(this);
-    	llBackgroundRegionSectorSearchResults.setBackgroundColor(Color.CYAN);
-    	llBackgroundRegionSectorSearchResults.setOrientation(LinearLayout.VERTICAL);
-    llBackgroundTab3 = new LinearLayout(this);
-    	llBackgroundTab3.setBackgroundColor(Color.GREEN);
-    llBackgroundTab4 = new LinearLayout(this);
-    	llBackgroundTab4.setBackgroundColor(Color.YELLOW);
-    llBackgroundTab5 = new LinearLayout(this);
-    	llBackgroundTab5.setBackgroundColor(Color.MAGENTA);
-    
-        llMainFrameCollection.addView(llSearchRegionAndSector, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.y - 2*supportUtility.getActionBarHeight() );
-        llMainFrameCollection.addView(llBackgroundRegionSectorSearchResults, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.y - 2*supportUtility.getActionBarHeight() );
-        llMainFrameCollection.addView(llBackgroundTab3, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.y - 2*supportUtility.getActionBarHeight() );
-        llMainFrameCollection.addView(llBackgroundTab4, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.y - 2*supportUtility.getActionBarHeight() );
-        llMainFrameCollection.addView(llBackgroundTab5, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.y - 2*supportUtility.getActionBarHeight() );
-
-    
-    
 		
 		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
 				getSupportActionBar().show();
-				llMainScreen.removeAllViews();
-				llMainScreen.addView(llTabBar, supportUtility.pointScreenDimensions.x, supportUtility.getActionBarHeight());
-				llMainScreen.addView(llMainFrameCollection, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.y - supportUtility.getActionBarHeight());
-				llMainScreen.postInvalidate();
+				flMainScreen.removeAllViews();
+				flMainScreen.addView(llSearchRegionAndSector, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.y - supportUtility.getActionBarHeight());
+				flMainScreen.postInvalidate();
 			}
 		}, 1500);
 		
-		TextView tvResultsHeader = new TextView(this);
-		tvResultsHeader.setText("Volunteer Openings - Results");
-		tvResultsHeader.setGravity(Gravity.CENTER);
-		tvResultsHeader.setBackgroundColor(Color.argb(0,0,0,0));
-		tvResultsHeader.setTextSize(16);
-		tvResultsHeader.setTextColor(Color.WHITE);
-		tvResultsHeader.setBackgroundColor(Color.argb(100, 100, 100, 100));
-		
 		tvHTML = new TextView(this);
 		tvHTML.setBackgroundColor(Color.YELLOW);
-		tvHTML.setBackgroundColor(Color.argb(100, 200, 200, 200));
 		tvHTML.setTextColor(Color.BLACK);
 		LinearLayout llHTML = new LinearLayout(this);
 		llHTML.addView(tvHTML);//, supportUtility.pointScreenDimensions.x, (int) (supportUtility.pointScreenDimensions.y - supportUtility.getActionBarHeight()*2 - 3/16*supportUtility.pointScreenDimensions.x/4 - 2.5 * supportUtility.pointScreenDimensions.x/4  - 1/32 * supportUtility.pointScreenDimensions.x/4));
 		ScrollView svHTML = new ScrollView(this);
 		svHTML.addView(llHTML);
 		svHTML.setFillViewport(true);
-		llBackgroundRegionSectorSearchResults.addView(tvResultsHeader, supportUtility.pointScreenDimensions.x, (int) (supportUtility.pointScreenDimensions.x/16));
-		llBackgroundRegionSectorSearchResults.addView(svHTML, supportUtility.pointScreenDimensions.x, (int) (supportUtility.pointScreenDimensions.y - supportUtility.getActionBarHeight()*2 - supportUtility.pointScreenDimensions.x/16));
+		llSearchRegionAndSector.addView(svHTML, supportUtility.pointScreenDimensions.x, (int) (supportUtility.pointScreenDimensions.y - supportUtility.getActionBarHeight()*2 - 3/16*supportUtility.pointScreenDimensions.x/4 - 2.5 * supportUtility.pointScreenDimensions.x/4  - 1/32 * supportUtility.pointScreenDimensions.x/4 - supportUtility.getSoftbuttonsbarHeight()));
 		//setContentView(R.layout.activity_main);
         
         arrayMenuItems = getResources().getStringArray(R.array.menuitems);
@@ -787,12 +681,6 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		runOnUiThread(new Runnable() {		
 			@Override
 			public void run() {
-			    //LinearLayout llSearchRegionAndSector;
-			    //LinearLayout llBackgroundRegionSectorSearchResults;
-			    //LinearLayout llBackgroundTab3;
-			    //LinearLayout llBackgroundTab4;
-			    //LinearLayout llBackgroundTab5;
-			    
 				String openingInformation = "Total Number of Openings: " + alOpeningsInformation.size() + "\n";
 				for(int i = 0; i < alOpeningsInformation.size(); i++){
 					openingInformation =openingInformation + "Opening #: " + i + "\n";
@@ -801,24 +689,6 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 				}
 				tvHTML.setText(openingInformation);		
 				tvHTML.postInvalidate();
-				
-				TranslateAnimation anim = new TranslateAnimation(supportUtility.pointScreenDimensions.x, 0, 0, 0);
-				anim.setDuration(800);
-				llBackgroundRegionSectorSearchResults.startAnimation(anim);
-				llSearchRegionAndSector.setVisibility(View.GONE);
-				
-				
-				ivTabBarItem1.setBackgroundColor(Color.argb(255, 220, 220, 220));
-				ivTabBarItem2.setBackgroundColor(Color.CYAN);
-				ivTabBarItem3.setBackgroundColor(Color.argb(255, 180, 180, 180));
-				ivTabBarItem4.setBackgroundColor(Color.argb(255, 160, 160, 160));
-				ivTabBarItem5.setBackgroundColor(Color.argb(255, 140, 140, 140));
-				
-				ivTabBarItem1.postInvalidate();
-				ivTabBarItem2.postInvalidate();
-				ivTabBarItem3.postInvalidate();
-				ivTabBarItem4.postInvalidate();
-				ivTabBarItem5.postInvalidate();
 			}
 		});
 		
