@@ -617,9 +617,10 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		ScrollView svHTML = new ScrollView(this);
 		svHTML.addView(llHTML);
 		svHTML.setFillViewport(true);
-		llBackgroundRegionSectorSearchResults.addView(tvResultsHeader, supportUtility.pointScreenDimensions.x, (int) (supportUtility.pointScreenDimensions.x/16));
-		llBackgroundRegionSectorSearchResults.addView(svHTML, supportUtility.pointScreenDimensions.x, (int) (supportUtility.pointScreenDimensions.y - supportUtility.getActionBarHeight()*2 - supportUtility.pointScreenDimensions.x/16));
-		//setContentView(R.layout.activity_main);
+        llBackgroundRegionSectorSearchResults.addView(tvResultsHeader, supportUtility.pointScreenDimensions.x, (int) (supportUtility.pointScreenDimensions.x/16));
+        llBackgroundRegionSectorSearchResults.addView(displayResults(), supportUtility.pointScreenDimensions.x, (int) (supportUtility.pointScreenDimensions.y - supportUtility.getActionBarHeight()*2 - supportUtility.pointScreenDimensions.x/16));
+        //llBackgroundRegionSectorSearchResults.addView(svHTML, supportUtility.pointScreenDimensions.x, (int) (supportUtility.pointScreenDimensions.y - supportUtility.getActionBarHeight()*2 - supportUtility.pointScreenDimensions.x/16));
+        //setContentView(R.layout.activity_main);
         
         arrayMenuItems = getResources().getStringArray(R.array.menuitems);
                 
@@ -922,6 +923,23 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
             return null;  
         }  
     }
+    public ScrollView displayResults() {
+        final LinearLayout llResults = new LinearLayout(this);
+        llResults.setOrientation(LinearLayout.VERTICAL);
+        llResults.setPadding(1, 1, 1, 1);
+
+        for (int i = 0; i<alOpeningsInformation.size(); i++) {
+            LinearLayout llResultItem = new LinearLayout(this);
+            TextView tvResultItem = new TextView(this);
+            tvRegionItem.setText(alOpeningsInformation.get(i).title);
+            llResultItem.addView(tvResultItem, supportUtility.pointScreenDimensions.y/2, supportUtility.pointScreenDimensions.y/2);
+            llResults.addView(llResultItem, supportUtility.pointScreenDimensions.y, supportUtility.pointScreenDimensions.y);
+        }
+        final ScrollView svResults = new ScrollView(this);
+        svResults.addView(llResults);
+        return svResults;
+    }
+
     
     
 }
