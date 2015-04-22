@@ -1,0 +1,31 @@
+public ScrollView displayResults() {
+	final LinearLayout llResults = new LinearLayout(this);
+		llResults.setOrientation(LinearLayout.VERTICAL);
+		llResults.setPadding(1, 1, 1, 1);
+		
+		for (int i = 0; i<alOpeningsInformation.size(); i++) {
+			LinearLayout llResultItem = new LinearLayout(this);
+			TextView tvResultItem = new TextView(this);
+			String item = "Title: " + alOpeningsInformation.get(i).title + "\n" 
+						+ "Country: " + alOpeningsInformation.get(i).country + "\n"
+						+ "Region: " + alOpeningsInformation.get(i).region + "\n"
+						+ "Sector: " + alOpeningsInformation.get(i).sector + "\n\n"
+						+ "Apply Date: " + alOpeningsInformation.get(i).apply_date + "\n"
+						+ "Know by: " + alOpeningsInformation.get(i).know_date + "\n\n"
+						+ "Required Skills: " + alOpeningsInformation.get(i).required_skills + "\n"
+						+ "Desired Skills: " + alOpeningsInformation.get(i).desired_skills + "\n"
+						+ "Language Skills: " + alOpeningsInformation.get(i).language_skills + "\n";
+			tvRegionItem.setText(item);
+			if (i%2 = 0) {
+				tvResultItem.setBackgroundColor(Color.GRAY);
+			} else {
+				tvResultItem.setBackgroundColor(Color.WHITE);
+			}
+			llResultItem.addView(tvResultItem, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.y/3);
+			llResults.addView(llResultItem, supportUtility.pointScreenDimensions.y, supportUtility.pointScreenDimensions.y);
+		}
+	final ScrollView svResults = new ScrollView(this);
+	svResults.addView(llResults);
+	return svResults;
+}
+
