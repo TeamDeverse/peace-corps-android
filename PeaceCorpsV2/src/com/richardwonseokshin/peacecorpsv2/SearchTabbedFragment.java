@@ -650,28 +650,83 @@ return llSearchRegionAndSector;
     public ScrollView displayResults() {
     	final LinearLayout llResults = new LinearLayout(this.getActivity());
     		llResults.setOrientation(LinearLayout.VERTICAL);
-    		llResults.setPadding(1, 1, 1, 1);
+    		llResults.setGravity(Gravity.CENTER);
+    		
     		
     		for (int i = 0; i<alOpeningsInformation.size(); i++) {
-    			LinearLayout llResultItem = new LinearLayout(this.getActivity());
-    			TextView tvResultItem = new TextView(this.getActivity());
-    			String item = "Title: " + alOpeningsInformation.get(i).title + "\n" 
-    						+ "Country: " + alOpeningsInformation.get(i).country + "\n"
-    						+ "Region: " + alOpeningsInformation.get(i).region + "\n"
-    						+ "Sector: " + alOpeningsInformation.get(i).sector + "\n\n"
-    						+ "Apply Date: " + alOpeningsInformation.get(i).apply_date + "\n"
-    						+ "Know by: " + alOpeningsInformation.get(i).know_date + "\n\n"
-    						+ "Required Skills: " + alOpeningsInformation.get(i).required_skills + "\n"
-    						+ "Desired Skills: " + alOpeningsInformation.get(i).desired_skills + "\n"
-    						+ "Language Skills: " + alOpeningsInformation.get(i).language_skills + "\n";
-    			tvResultItem.setText(item);
-    			if (i%2 == 0) {
-    				tvResultItem.setBackgroundColor(Color.GRAY);
-    			} else {
-    				tvResultItem.setBackgroundColor(Color.WHITE);
+    			LinearLayout llCard = new LinearLayout(getActivity());
+    				llCard.setOrientation(LinearLayout.VERTICAL);
+    				llCard.setGravity(Gravity.CENTER);
+    				llCard.setBackgroundColor(Color.argb(255, 0, 128, 141));
+    				llCard.setPadding(10, 10, 10, 10);
+
+    				
+    			TextView tvOpeningTitle = new TextView(getActivity());
+    				tvOpeningTitle.setGravity(Gravity.CENTER);
+    				tvOpeningTitle.setTextSize(14);
+    				tvOpeningTitle.setText(alOpeningsInformation.get(i).title);
+    				tvOpeningTitle.append("\n" + alOpeningsInformation.get(i).region);
+    				tvOpeningTitle.append(" - " + alOpeningsInformation.get(i).country + " - ");
+    				tvOpeningTitle.append(alOpeningsInformation.get(i).sector);
+    				tvOpeningTitle.setTextColor(Color.argb(255, 0, 128, 141));
+    				tvOpeningTitle.setBackgroundColor(Color.argb(255, 225, 222, 199));
+    				
+    				
+
+    			ImageView ivSector = new ImageView(getActivity());
+    			if(alOpeningsInformation.get(i).sector.compareTo("Agriculture") == 0){
+    				ivSector.setBackgroundResource(R.drawable.sectoragriculture);
     			}
-    			llResultItem.addView(tvResultItem, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.y/3);
-    			llResults.addView(llResultItem, supportUtility.pointScreenDimensions.y, supportUtility.pointScreenDimensions.y);
+    			else if(alOpeningsInformation.get(i).sector.compareTo("Community Economic Development") == 0){
+    				ivSector.setBackgroundResource(R.drawable.sectorcommunity);
+    			}
+    			else if(alOpeningsInformation.get(i).sector.compareTo("Education") == 0){
+    				ivSector.setBackgroundResource(R.drawable.sectoreducation);
+    			}
+    			else if(alOpeningsInformation.get(i).sector.compareTo("Health") == 0){
+    				ivSector.setBackgroundResource(R.drawable.sectorhealth);
+    			}
+    			else if(alOpeningsInformation.get(i).sector.compareTo("Youth in Development") == 0){
+    				ivSector.setBackgroundResource(R.drawable.sectoryouth);	
+    			}
+    			else if(alOpeningsInformation.get(i).sector.compareTo("Environment") == 0){
+    				ivSector.setBackgroundResource(R.drawable.sectorenvironment);
+    			}
+    			else{
+    				ivSector.setBackgroundResource(R.drawable.sectoranything);	
+    			}
+    			
+    			TextView tvCardDescription = new TextView(getActivity());
+    				tvCardDescription.setGravity(Gravity.LEFT);
+    				tvCardDescription.setTextSize(12);
+    				tvCardDescription.setText("Apply Date: " + alOpeningsInformation.get(i).apply_date + "\n");
+    				tvCardDescription.append("Know by: " + alOpeningsInformation.get(i).know_date + "\n\n");
+    				tvCardDescription.append("Required Skills: " + alOpeningsInformation.get(i).required_skills + "\n");
+    				tvCardDescription.append("Desired Skills: " + alOpeningsInformation.get(i).desired_skills + "\n");
+    				tvCardDescription.append("Language Skills: " + alOpeningsInformation.get(i).language_skills + "\n");
+    				tvCardDescription.setTextColor(Color.argb(255, 0, 128, 141));
+    				tvCardDescription.setBackgroundColor(Color.argb(255, 225, 222, 199));    				
+    				
+    				
+        			View vP = new View(getActivity());
+        			vP.setBackgroundColor(Color.argb(0,0,0,0));
+        			llResults.addView(vP, 10, 10);
+        			
+    				llCard.addView(tvOpeningTitle, (int)(supportUtility.pointScreenDimensions.x*.9), (int)(supportUtility.pointScreenDimensions.x*.9*.2));
+    				vP = new View(getActivity());
+        			vP.setBackgroundColor(Color.argb(0,0,0,0));
+    				llCard.addView(vP, 10, 10);
+    				llCard.addView(ivSector,  (int)(supportUtility.pointScreenDimensions.x*.9*.2),  (int)(supportUtility.pointScreenDimensions.x*.9*.2));
+    				vP = new View(getActivity());
+        			vP.setBackgroundColor(Color.argb(0,0,0,0));
+    				llCard.addView(vP, 10, 10);
+    				llCard.addView(tvCardDescription);
+    				
+    				vP = new View(getActivity());
+        			vP.setBackgroundColor(Color.argb(0,0,0,0));
+        			llResults.addView(vP, 10, 10);
+    				
+    			llResults.addView(llCard);    			    			
     		}
     	final ScrollView svResults = new ScrollView(this.getActivity());
     	svResults.addView(llResults);
