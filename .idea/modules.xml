@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/peace-corps-android.iml" filepath="$PROJECT_DIR$/peace-corps-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DrawerNavigationTabs/DrawerNavigationTabs.iml" filepath="$PROJECT_DIR$/DrawerNavigationTabs/DrawerNavigationTabs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PeaceCorps/PeaceCorps.iml" filepath="$PROJECT_DIR$/PeaceCorps/PeaceCorps.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PeaceCorpsV2(ExportedProjectWithGradleBuildFromEclipse)/PeaceCorpsV2(ExportedProjectWithGradleBuildFromEclipse).iml" filepath="$PROJECT_DIR$/PeaceCorpsV2(ExportedProjectWithGradleBuildFromEclipse)/PeaceCorpsV2(ExportedProjectWithGradleBuildFromEclipse).iml" />
     </modules>
   </component>
 </project>
