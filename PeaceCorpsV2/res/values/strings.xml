@@ -8,7 +8,7 @@
     <string-array name="drawer_titles">
         <item>Search Opportunities</item>
         <item>Peace Corps Website</item>
-        <item >Menu 3</item>
+        <item >Saved Searches</item>
         <item >Menu 4</item>
         <item >Menu 5</item>
     </string-array>
@@ -20,5 +20,6 @@
     <string name="title_section2">Results</string>
     <string name="title_section3">Tab 3</string>
     <string name="title_activity_tabbed">TabbedActivity</string>
-
+    <string name="title_activity_tabbed_cache">TabbedCacheActivity</string>
+    
 </resources>

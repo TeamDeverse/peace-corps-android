@@ -3,14 +3,17 @@ package com.richardwonseokshin.peacecorpsv2;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Scanner;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,19 +31,15 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class SearchTabbedFragment extends Fragment {
+public class SavedSearchesTabbedActivity extends Fragment {
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -51,10 +50,11 @@ public class SearchTabbedFragment extends Fragment {
 	 * {@link android.support.v4.app.FragmentStatePagerAdapter}.
 	 */
 	SectionsPagerAdapter mSectionsPagerAdapter;
-
-	ProgressDialog progress;
 	
-	public static final String TAG = SearchTabbedFragment.class.getSimpleName();
+	ProgressDialog progress;
+
+
+	public static final String TAG = SavedSearchesTabbedActivity.class.getSimpleName();
 	
 	/**
 	 * The {@link ViewPager} that will host the section contents.
@@ -62,8 +62,8 @@ public class SearchTabbedFragment extends Fragment {
 	ViewPager mViewPager;
 
 	
-	public static SearchTabbedFragment newInstance() {
-		return new SearchTabbedFragment();
+	public static SavedSearchesTabbedActivity newInstance() {
+		return new SavedSearchesTabbedActivity();
 	}
 	
 	@Override
@@ -145,11 +145,11 @@ public class SearchTabbedFragment extends Fragment {
 			Locale l = Locale.getDefault();
 			switch (position) {
 			case 0:
-				return "SEARCH";
+				return "SAVED";
 			case 1:
-				return "RESULTS";
+				return "FAVORITES";
 			case 2:
-				return "DETAILS";
+				return "SORT";
 			}
 			return null;
 		}
@@ -179,7 +179,7 @@ public class SearchTabbedFragment extends Fragment {
 			
 			
 			
-			return SearchTabbedFragment.this.searchScreen();
+			return SavedSearchesTabbedActivity.this.searchScreen();
 		}
 	}
 	
@@ -240,354 +240,102 @@ public class SearchTabbedFragment extends Fragment {
 	ImageView ivTabBarItem3;
 	ImageView ivTabBarItem4;
 	ImageView ivTabBarItem5;
+	
+	
+	Thread threadGetCacheFromDisk = null;
 
 	public View searchScreen(){
+
 		supportUtility = new AndroidApplicationSupportUtility(this.getActivity());
 		
-	LinearLayout llSearchRegionAndSector = new LinearLayout(this.getActivity());
-		llSearchRegionAndSector.setOrientation(LinearLayout.VERTICAL);
-		llSearchRegionAndSector.setBackgroundResource(R.drawable.blackgradient);		
+		LinearLayout llSavedSearches = new LinearLayout(getActivity());
+		llSavedSearches.setBackgroundResource(R.drawable.blackgradient);
 		
-    final LinearLayout llRegions = new LinearLayout(this.getActivity());
-    	llRegions.setOrientation(LinearLayout.HORIZONTAL);
-    	llRegions.setPadding(0, 8, 0, 8);
-    	View vPadding = new View(this.getActivity());
-		vPadding.setBackgroundColor(Color.argb(0,0,0,0));
-		llRegions.addView(vPadding,8,supportUtility.pointScreenDimensions.x/4);
-    for(int i = 0; i < 9; i++){
-    	LinearLayout llRegionItem = new LinearLayout(this.getActivity());
-    		llRegionItem.setBackgroundResource(mRegionsThumIds[i]);
-    	TextView tvRegionItemCaption = new TextView(this.getActivity());
-    		tvRegionItemCaption.setText(mRegionsCaptions[i]);
-    		tvRegionItemCaption.setTextColor(Color.WHITE);
-    		tvRegionItemCaption.setTextSize(10);
-    		tvRegionItemCaption.setGravity(Gravity.CENTER | Gravity.BOTTOM);
-    	final ImageView ivRegionItemHighlight = new ImageView(this.getActivity());
-    		arrayImageViewsRegions[i] = ivRegionItemHighlight;
-    		ivRegionItemHighlight.setBackgroundColor(Color.argb(0,0,0,0));
-    			if(i == 0){
-    				ivRegionItemHighlight.setBackgroundColor(Color.argb(150,120,0,0));
-    			}
-			final int index = i;
-    		ivRegionItemHighlight.setOnClickListener(new OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					if(arraySelectedRegions[index] == 0){
-						arraySelectedRegions[index] = 1;
-						totalNumRegionsSelected += 1;
-	    				ivRegionItemHighlight.setBackgroundColor(Color.argb(150,120,0,0));
-	    				
-						if(index == 0){
-							totalNumRegionsSelected = 1;
-							for(int j = 1; j<9; j++){
-								arraySelectedRegions[j] = 0;
-					    		arrayImageViewsRegions[j].setBackgroundColor(Color.argb(0,0,0,0));
-							}
-						}
-						else{
-							if(arraySelectedRegions[0] == 1){
-								arraySelectedRegions[0] = 0;
-								totalNumRegionsSelected -= 1;
-					    		arrayImageViewsRegions[0].setBackgroundColor(Color.argb(0,0,0,0));
-							}
-						}
-					}
-					else{
-						if(totalNumRegionsSelected > 1){
-							arraySelectedRegions[index] = 0;
-							totalNumRegionsSelected -= 1;
-				    		ivRegionItemHighlight.setBackgroundColor(Color.argb(0,0,0,0));
-						}
-						
+		final TextView tvSavedSearches = new TextView(getActivity());
+		
 
-					}	
-					ivRegionItemHighlight.postInvalidate();
-				}
-			});	    		
-    	llRegionItem.addView(tvRegionItemCaption, supportUtility.pointScreenDimensions.x/4, supportUtility.pointScreenDimensions.x/4);
-    	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(supportUtility.pointScreenDimensions.x/4, supportUtility.pointScreenDimensions.x/4);
-    		params.leftMargin = -supportUtility.pointScreenDimensions.x/4;
-    	llRegionItem.addView(ivRegionItemHighlight, params);
-    	llRegions.addView(llRegionItem,supportUtility.pointScreenDimensions.x/4,supportUtility.pointScreenDimensions.x/4);
-    	vPadding = new View(this.getActivity());
-    		vPadding.setBackgroundColor(Color.argb(0,0,0,0));
-    	llRegions.addView(vPadding,8,supportUtility.pointScreenDimensions.x/4);
-    }
-    final HorizontalScrollView hsvRegions = new HorizontalScrollView(this.getActivity());
-    hsvRegions.addView(llRegions);//, 9*16 + 9*supportUtility.pointScreenDimensions.x/4, 16 + supportUtility.pointScreenDimensions.x/4);
-    
-
-final LinearLayout llSectors = new LinearLayout(this.getActivity());
-	llSectors.setOrientation(LinearLayout.HORIZONTAL);
-	//llSectors.setPadding(0, 8, 0, 8);
-	View vPadding2 = new View(this.getActivity());
-	vPadding2.setBackgroundColor(Color.argb(0,0,0,0));
-	llSectors.addView(vPadding2,8,supportUtility.pointScreenDimensions.x/4);
-for(int i = 0; i < 7; i++){
-	LinearLayout llSectorItem = new LinearLayout(this.getActivity());
-		llSectorItem.setBackgroundResource(mSectorThumIds[i]);
-	TextView tvSectorItemCaption = new TextView(this.getActivity());
-		tvSectorItemCaption.setText(mSectorCaptions[i]);
-		tvSectorItemCaption.setTextSize(10);
-		tvSectorItemCaption.setTextColor(Color.WHITE);	
-		tvSectorItemCaption.setGravity(Gravity.CENTER | Gravity.BOTTOM);
-	final ImageView ivSectorItemHighlight = new ImageView(this.getActivity());
-		arrayImageViewsSectors[i] = ivSectorItemHighlight;
-		ivSectorItemHighlight.setBackgroundColor(Color.argb(0,0,0,0));
-			if(i == 0){
-				ivSectorItemHighlight.setBackgroundColor(Color.argb(150,120,0,0));
-			}
-		final int index = i;
-		ivSectorItemHighlight.setOnClickListener(new OnClickListener() {
-			
+        getActivity().runOnUiThread(new Runnable() {				
 			@Override
-			public void onClick(View v) {
-				if(arraySelectedSectors[index] == 0){
-					arraySelectedSectors[index] = 1;
-					totalNumSectorsSelected += 1;
-					ivSectorItemHighlight.setBackgroundColor(Color.argb(150,120,0,0));
-					
-					if(index == 0){
-						totalNumSectorsSelected = 1;
-						for(int j = 1; j<7; j++){
-							arraySelectedSectors[j] = 0;
-							arrayImageViewsSectors[j].setBackgroundColor(Color.argb(0,0,0,0));
-						}
-					}		
-					else{
-						if(arraySelectedSectors[0] == 1){
-							arraySelectedSectors[0] = 0;
-							totalNumSectorsSelected -= 1;
-				    		arrayImageViewsSectors[0].setBackgroundColor(Color.argb(0,0,0,0));
-						}
-					}
-				}
-				else{
-					if(totalNumSectorsSelected > 1){
-						arraySelectedSectors[index] = 0;
-						totalNumSectorsSelected -= 1;
-						ivSectorItemHighlight.setBackgroundColor(Color.argb(0,0,0,0));
-					}
-					
-
-				}	
-				ivSectorItemHighlight.postInvalidate();
+			public void run() {
+			    progress = ProgressDialog.show(getActivity(), "Loading Cached Openings",
+			    	    "Please Wait One Moment.", true);
 			}
 		});
-	llSectorItem.addView(tvSectorItemCaption, supportUtility.pointScreenDimensions.x/4, supportUtility.pointScreenDimensions.x/4);
-	LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(supportUtility.pointScreenDimensions.x/4, supportUtility.pointScreenDimensions.x/4);
-		params.leftMargin = -supportUtility.pointScreenDimensions.x/4;
-	llSectorItem.addView(ivSectorItemHighlight, params);
-	llSectors.addView(llSectorItem,supportUtility.pointScreenDimensions.x/4,supportUtility.pointScreenDimensions.x/4);
-	vPadding2 = new View(this.getActivity());
-		vPadding2.setBackgroundColor(Color.argb(0,0,0,0));
-	llSectors.addView(vPadding2,8,supportUtility.pointScreenDimensions.x/4);
-}
-final HorizontalScrollView hsvSectors = new HorizontalScrollView(this.getActivity());
-hsvSectors.addView(llSectors);//, 9*16 + 9*supportUtility.pointScreenDimensions.x/4, 16 + supportUtility.pointScreenDimensions.x/4);
 
-hsvSectors.setScrollbarFadingEnabled(false);
-hsvRegions.setScrollbarFadingEnabled(false);
+        
+		threadGetCacheFromDisk = new Thread(){
+			@Override
+			public void run() {
+				super.run();
+				
+				try {					
+				    File fileAllOpeningsCache = new File(getActivity().getFilesDir(), "all_openings_cache.txt"); // Pass getCacheDir()
+			        //InputStream in;
+					//in = new FileInputStream(fileAllOpeningsCache);
+					
+				    final Scanner scanner = new Scanner(fileAllOpeningsCache); 
+					
+					//final String cachedString = new Scanner(fileAllOpeningsCache).useDelimiter("\\Z").next();
+				    String cachedString = "";
+				    
 
-	TextView tvHeader = new TextView(this.getActivity());
-	tvHeader.setText("Volunteer Openings");
-	tvHeader.setGravity(Gravity.CENTER);
-	tvHeader.setBackgroundColor(Color.argb(0,0,0,0));
-	tvHeader.setTextSize(16);
-	tvHeader.setTextColor(Color.WHITE);
-llSearchRegionAndSector.addView(tvHeader, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/16);
-	TextView tvRegionHeader = new TextView(this.getActivity());
-	tvRegionHeader.setText("Select Region(s)");
-	tvRegionHeader.setGravity(Gravity.LEFT | Gravity.BOTTOM);
-	tvRegionHeader.setBackgroundColor(Color.argb(0,0,0,0));
-	tvRegionHeader.setTextSize(12);
-	tvRegionHeader.setTextColor(Color.CYAN);
-llSearchRegionAndSector.addView(tvRegionHeader, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/16);
-llSearchRegionAndSector.addView(hsvRegions, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/4);//, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/4+16);
-	TextView tvSectorHeader = new TextView(this.getActivity());
-	tvSectorHeader.setText("Select Sector(s)");
-	tvSectorHeader.setGravity(Gravity.LEFT | Gravity.BOTTOM);
-	tvSectorHeader.setBackgroundColor(Color.argb(0,0,0,0));
-	tvSectorHeader.setTextSize(12);
-	tvSectorHeader.setTextColor(Color.GREEN);
-llSearchRegionAndSector.addView(tvSectorHeader, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/16);
-llSearchRegionAndSector.addView(hsvSectors, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/4);//, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/4+16);
+				    
+				    while(scanner.hasNext()){
+				    	cachedString += scanner.nextLine();
+				    }
+				    final String finalizedCachedString = cachedString;
+			        getActivity().runOnUiThread(new Runnable() {				
+						@Override
+						public void run() {
+							tvSavedSearches.setText(finalizedCachedString);
+							tvSavedSearches.postInvalidate();
+							
+							progress.dismiss();
 
-View vPaddingSearchButtong = new View(this.getActivity());
-vPaddingSearchButtong.setBackgroundColor(Color.argb(0,0,0,0));
-llSearchRegionAndSector.addView(vPaddingSearchButtong, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/32);
+						}
+					});
+					
+					/*
+			        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+			        StringBuilder out = new StringBuilder();
+			        String line;
+			        while ((line = reader.readLine()) != null) {
+			            out.append(line);
+			        }
+			        final String cachedString = out.toString();
+			        reader.close();
+			        */
+			        	        	
+			        try {
+						threadGetCacheFromDisk.join();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 
-final TextView tvSearchButton = new TextView(this.getActivity());
-tvSearchButton.setText("Search Opportunities >");
-tvSearchButton.setTextColor(Color.WHITE);
-tvSearchButton.setTextSize(16);
-tvSearchButton.setGravity(Gravity.CENTER);
-tvSearchButton.setBackgroundColor(Color.argb(255,204,102,51));
-tvSearchButton.setOnTouchListener(new OnTouchListener() {
-	
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
-		switch(event.getAction()){
-			case MotionEvent.ACTION_DOWN: 
-			    tvSearchButton.setBackgroundColor(Color.argb(255,164,62,11));
-			    tvSearchButton.postInvalidate();
-				break;
-			case MotionEvent.ACTION_MOVE: break;
-			case MotionEvent.ACTION_UP: 
-			    tvSearchButton.setBackgroundColor(Color.argb(255,204,102,51));
-			    tvSearchButton.postInvalidate();
-			    
-			    progress = ProgressDialog.show(getActivity(), "Loading",
-			    	    "Please Wait One Moment.", true);
-			    
-			    // Example http get request for regions: http://www.peacecorps.gov/api/v1/geography/regions/?region=easteurope&region=africa
-			    // Example http get request for openings: http://www.peacecorps.gov/api/v1/openings/?region=asia&region=africa&sector=education
-			    //http://www.peacecorps.gov/api/v1/openings/?region=asia&sector=youth%20in%20development
-			    String htmlQueryBaseURL = "http://www.peacecorps.gov/api/v1/openings/?";
-			    String htmlQueryURL = ""; 
-			    int numRegionsSelected = 0;
-			    for(int i = 1; i < 9; i++){
-			    	if(arraySelectedRegions[0] == 1){//user selected "anywhere", combine all other regions
-			    		if(i == 1){
-			    			htmlQueryURL = htmlQueryURL + "region=" + arrayRegionSlugs[i];
-			    		}
-			    		else{
-			    			htmlQueryURL = htmlQueryURL + "&region=" + arrayRegionSlugs[i];
-			    		}
-			    	}
-			    	else{//user selected 1 or more regions, but did not select "anywhere"
-				    	if(arraySelectedRegions[i] == 1){
-				    		if(numRegionsSelected == 0){
-				    			htmlQueryURL = htmlQueryURL + "region=" + arrayRegionSlugs[i];
-				    		}
-				    		else{
-				    			htmlQueryURL = htmlQueryURL + "&region=" + arrayRegionSlugs[i];
-				    		}
-			    			numRegionsSelected += 1;
-				    	}
-			    	}
-			    }
-			    
-			    for(int i = 1; i < 7; i++){
-			    	if(arraySelectedSectors[0] == 1){//user selected "anywhere", combine all other regions
-			    		htmlQueryURL = htmlQueryURL + "&sector=" + arraySectorSlugs[i];
-			    	}
-			    	else if(arraySelectedSectors[i] == 1){//user selected 1 or more regions, but did not select "anywhere"
-				    	htmlQueryURL = htmlQueryURL + "&sector=" + arraySectorSlugs[i];
-			    	}
-			    }
-			    
-			    //http://www.peacecorps.gov/api/v1/geography/countries/?sector=health&region=asia
-
-			    htmlQueryURL += "&current=true";
-			    
-			    /*
-				try {
-					htmlQueryURL = URLEncoder.encode(htmlQueryURL, "UTF-8");
-				} catch (UnsupportedEncodingException e) {
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				*/
 				
-				htmlQueryURL = htmlQueryBaseURL + htmlQueryURL;
-			
-			    getHTML(htmlQueryURL, false);		
-			    
-			    break;
-		}
-		return true;
+			}			
+		};
+
+			threadGetCacheFromDisk.start();
+
+
+
+		
+		llSavedSearches.addView(tvSavedSearches);
+		
+		ScrollView svSavedSearches = new ScrollView(getActivity());
+		
+		svSavedSearches.addView(llSavedSearches);
+		
+		return svSavedSearches;
 	}
-});
-
-llSearchRegionAndSector.addView(tvSearchButton, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/8);
-
-
-//		if(isOnline()){
-//getHTML("http://www.peacecorps.gov/api/v1/openings/", true);			
-//}
-
-
-View vPaddingCache = new View(this.getActivity());
-vPaddingCache.setBackgroundColor(Color.argb(0,0,0,0));
-llSearchRegionAndSector.addView(vPaddingCache, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/32);
-
-final TextView tvCacheButton = new TextView(this.getActivity());
-tvCacheButton.setText("Save Openings To Phone >");
-tvCacheButton.setTextColor(Color.WHITE);
-tvCacheButton.setTextSize(16);
-tvCacheButton.setGravity(Gravity.CENTER);
-tvCacheButton.setBackgroundColor(Color.argb(255,204,102,51));
-tvCacheButton.setOnTouchListener(new OnTouchListener() {
-	
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
-		switch(event.getAction()){
-			case MotionEvent.ACTION_DOWN: 
-				tvCacheButton.setBackgroundColor(Color.argb(255,164,62,11));
-				tvCacheButton.postInvalidate();
-				break;
-			case MotionEvent.ACTION_MOVE: break;
-			case MotionEvent.ACTION_UP: 
-				tvCacheButton.setBackgroundColor(Color.argb(255,204,102,51));
-				tvCacheButton.postInvalidate();
-			    
-
-			    
-				if(isOnline()){
-				    progress = ProgressDialog.show(getActivity(), "Loading",
-				    	    "Please Wait One Moment.", true);
-				    
-					getHTML("http://www.peacecorps.gov/api/v1/openings/", true);	
-					
-				}	
-				else{
-					Toast.makeText(getActivity().getApplicationContext(), "Pleace Check Internet Connection",
-							   Toast.LENGTH_LONG).show();
-				}
-				
-				
-			    break;
-		}
-		return true;
-	}
-});
-
-llSearchRegionAndSector.addView(tvCacheButton, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/8);
-
-
-
-
-
-
-
-
-//
-
-for(int i = 0; i < 9; i++){
-	if(arraySelectedRegions[i] == 1){
-		arrayImageViewsRegions[i].setBackgroundColor(Color.argb(150,120,0,0));
-	}
-	else{
-		arrayImageViewsRegions[i].setBackgroundColor(Color.argb(0,0,0,0));
-	}
-}
-
-for(int i = 0; i < 7; i++){
-	if(arraySelectedSectors[i] == 1){
-		arrayImageViewsSectors[i].setBackgroundColor(Color.argb(150,120,0,0));
-	}
-	else{
-		arrayImageViewsSectors[i].setBackgroundColor(Color.argb(0,0,0,0));
-	}
-}
-
-
-
-
-return llSearchRegionAndSector;
-
-}
 	
 
 	
@@ -624,24 +372,23 @@ return llSearchRegionAndSector;
 				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(fileAllOpeningsCache));
 				bos.write(result.getBytes());
 				bos.flush();
-				bos.close();
-				
-
+				bos.close();				
 			    
 		        getActivity().runOnUiThread(new Runnable() {
 					
 					@Override
 					public void run() {
 						Toast.makeText(getActivity().getApplicationContext(), "Saved Openings to Cache", 
-								   Toast.LENGTH_LONG).show();		
-						
-						progress.dismiss();
-
+								   Toast.LENGTH_LONG).show();						
 					}
 				});
 		        
 		        
-		        
+		        /*
+				getActivity().getSupportFragmentManager()
+				.beginTransaction()
+				.replace(R.id.content_frame, SavedSearchesTabbedActivity.newInstance(), SavedSearchesTabbedActivity.TAG).commit();
+		        */
 
 				
 			} catch (FileNotFoundException e) {e.printStackTrace();}
@@ -706,9 +453,7 @@ return llSearchRegionAndSector;
 				public void run() {
 					svResultsGlobal = displayResults();				
 					mSectionsPagerAdapter.notifyDataSetChanged();
-					mViewPager.setCurrentItem(1);	
-					
-					progress.dismiss();
+					mViewPager.setCurrentItem(1);				
 				}
 			});
 		}		

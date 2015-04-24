@@ -52,6 +52,8 @@ public class MainActivity extends FragmentActivity implements OnItemClickListene
 	
 	AndroidApplicationSupportUtility supportUtility = null;
 	
+	FrameLayout flMainScreen = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		//super.onCreate(savedInstanceState);
@@ -71,7 +73,7 @@ public class MainActivity extends FragmentActivity implements OnItemClickListene
 		supportUtility = new AndroidApplicationSupportUtility(this);
 
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-		final FrameLayout flMainScreen = (FrameLayout)drawerLayout.getChildAt(0);
+		flMainScreen = (FrameLayout)drawerLayout.getChildAt(0);
 		final ImageView ivSplash = new ImageView(this);
 			ivSplash.setBackgroundResource(R.drawable.splashscreen);
 			flMainScreen.addView(ivSplash);
@@ -234,7 +236,30 @@ public class MainActivity extends FragmentActivity implements OnItemClickListene
 						WebViewFragment.newInstance(),
 						WebViewFragment.TAG).commit();
 			break;
+		case 2:
+			
+			/*
+			getSupportFragmentManager()
+			.beginTransaction()
+			.replace(R.id.content_frame,
+					WebViewFragment.newInstance(),
+					WebViewFragment.TAG).commit();
+					*/
+		/*
+			getSupportFragmentManager()
+				.beginTransaction()
+				.add(R.id.content_frame, 
+						ItemOne.newInstance(),
+						ItemOne.TAG).commit();
+			*/
+			
+			getSupportFragmentManager()
+				.beginTransaction()
+				.replace(R.id.content_frame, SavedSearchesTabbedActivity.newInstance(), SavedSearchesTabbedActivity.TAG).commit();
+				
+			break;
 		}
+		
 	}
 	
 	@Override
