@@ -670,7 +670,7 @@ return llSearchRegionAndSector;
     			} else {
     				tvResultItem.setBackgroundColor(Color.WHITE);
     			}
-    			llResultItem.addView(tvResultItem, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.y/2);
+    			llResultItem.addView(tvResultItem, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.y/3);
     			llResults.addView(llResultItem, supportUtility.pointScreenDimensions.y, supportUtility.pointScreenDimensions.y);
     		}
     	final ScrollView svResults = new ScrollView(this.getActivity());
