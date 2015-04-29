@@ -176,10 +176,10 @@ public class SavedSearchesTabbedActivity extends Fragment {
 					ARG_SECTION_NUMBER)));
 			dummyTextView.append("TAB ONE TEXT");
 			
+			if(vSearchScreen == null)
+				SavedSearchesTabbedActivity.this.searchScreen();
 			
-			
-			
-			return SavedSearchesTabbedActivity.this.searchScreen();
+			return vSearchScreen;
 		}
 	}
 	
@@ -223,7 +223,6 @@ public class SavedSearchesTabbedActivity extends Fragment {
 					.findViewById(R.id.section_label);
 			dummyTextView.setText(Integer.toString(getArguments().getInt(
 					ARG_SECTION_NUMBER)));
-			dummyTextView.append("TAB THREE TEXT");
 			return rootView;
 		}
 	}
@@ -243,16 +242,22 @@ public class SavedSearchesTabbedActivity extends Fragment {
 	
 	
 	Thread threadGetCacheFromDisk = null;
+	
+	View vSearchScreen = null;
 
 	public View searchScreen(){
 
 		supportUtility = new AndroidApplicationSupportUtility(this.getActivity());
 		
-		LinearLayout llSavedSearches = new LinearLayout(getActivity());
-		llSavedSearches.setBackgroundResource(R.drawable.blackgradient);
+		final LinearLayout llSavedSearches = new LinearLayout(getActivity());
+		//llSavedSearches.setBackgroundResource(R.drawable.blackgradient);
+		llSavedSearches.setGravity(Gravity.CENTER);
 		
 		final TextView tvSavedSearches = new TextView(getActivity());
-		
+		tvSavedSearches.setTextColor(Color.WHITE);
+		tvSavedSearches.setText("Getting Openings From Cache");
+		tvSavedSearches.setTextSize(20);
+		tvSavedSearches.setGravity(Gravity.CENTER);
 
         getActivity().runOnUiThread(new Runnable() {				
 			@Override
@@ -274,26 +279,58 @@ public class SavedSearchesTabbedActivity extends Fragment {
 					//in = new FileInputStream(fileAllOpeningsCache);
 					
 				    final Scanner scanner = new Scanner(fileAllOpeningsCache); 
+				    scanner.useDelimiter(",");
 					
 					//final String cachedString = new Scanner(fileAllOpeningsCache).useDelimiter("\\Z").next();
-				    String cachedString = "";
 				    
-
-				    
-				    while(scanner.hasNext()){
-				    	cachedString += scanner.nextLine();
-				    }
-				    final String finalizedCachedString = cachedString;
 			        getActivity().runOnUiThread(new Runnable() {				
 						@Override
-						public void run() {
-							tvSavedSearches.setText(finalizedCachedString);
-							tvSavedSearches.postInvalidate();
+						public void run() {				
+							llSavedSearches.setGravity(Gravity.LEFT);
+							tvSavedSearches.setTextSize(12);
+							tvSavedSearches.setGravity(Gravity.LEFT);
 							
 							progress.dismiss();
-
 						}
 					});
+				    
+				    String cachedString = "";
+				    String cachedString2 = "";
+				    
+				    int counter = 0;
+
+				    String nextField = "";
+				    while(scanner.hasNext()){
+				    	nextField = scanner.next();
+				    	cachedString =  cachedString + "," + nextField;
+				    	cachedString2 = cachedString + "," + nextField;
+				    	
+				    	if(counter == 25){
+					    	final String finalNextField = cachedString;
+
+					        getActivity().runOnUiThread(new Runnable() {				
+								@Override
+								public void run() {
+									tvSavedSearches.append(finalNextField + "\n");
+									tvSavedSearches.postInvalidate();	
+									svResultsGlobal.fullScroll(View.FOCUS_DOWN);		
+									svResultsGlobal.postInvalidate();
+								}
+							});
+					        counter = 0;
+							cachedString = "";
+
+					        try {
+								Thread.sleep(3000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+				    	}
+				    	else{
+				    		counter += 1;
+				    	}
+				    }
+
 					
 					/*
 			        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
@@ -333,7 +370,7 @@ public class SavedSearchesTabbedActivity extends Fragment {
 		ScrollView svSavedSearches = new ScrollView(getActivity());
 		
 		svSavedSearches.addView(llSavedSearches);
-		
+		vSearchScreen = svSavedSearches;
 		return svSavedSearches;
 	}
 	

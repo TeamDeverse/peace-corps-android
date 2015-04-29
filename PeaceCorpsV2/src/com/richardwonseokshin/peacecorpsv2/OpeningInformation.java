@@ -50,4 +50,31 @@ public class OpeningInformation {
 		
 		return openingInfo;
 	}
+	
+	public String toCSVString(){
+		String openingInfo = "";
+		openingInfo = openingInfo + title + ",";
+		openingInfo = openingInfo + req_id + ",";
+		openingInfo = openingInfo + country + ",";
+		openingInfo = openingInfo + region + ",";
+		openingInfo = openingInfo + sector + ",";
+		openingInfo = openingInfo + apply_date + ",";
+		openingInfo = openingInfo + know_date + ",";
+		openingInfo = openingInfo + staging_start_date + ",";
+		openingInfo = openingInfo + featured + ",";
+		openingInfo = openingInfo + project_description + ",";
+		openingInfo = openingInfo + required_skills + ",";
+		openingInfo = openingInfo + desired_skills + ",";
+		openingInfo = openingInfo + language_skills + ",";
+		openingInfo = openingInfo + language_skills_comments + ",";
+		openingInfo = openingInfo + volunteers_requested + ",";
+		openingInfo = openingInfo + accepts_couples + ",";
+		openingInfo = openingInfo + living_conditions_comments + ",";
+		openingInfo = openingInfo + country_medical_considerations + ",";
+		openingInfo = openingInfo + country_site_url + ",";
+		openingInfo = openingInfo + country_flag_image + ",";
+		openingInfo = openingInfo + opening_url;
+		
+		return openingInfo;
+	}
 }
