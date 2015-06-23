@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -53,7 +54,6 @@ public class SavedSearchesTabbedActivity extends Fragment {
 	
 	ProgressDialog progress;
 
-
 	public static final String TAG = SavedSearchesTabbedActivity.class.getSimpleName();
 	
 	/**
@@ -69,7 +69,6 @@ public class SavedSearchesTabbedActivity extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 	}
 
 	@Override
@@ -82,8 +81,6 @@ public class SavedSearchesTabbedActivity extends Fragment {
 					public int getItemPosition(Object object) {
 						return SectionsPagerAdapter.POSITION_NONE;// super.getItemPosition(object);
 					}
-			
-			
 		};
 		
 		mViewPager = (ViewPager) v.findViewById(R.id.pager);
@@ -135,8 +132,7 @@ public class SavedSearchesTabbedActivity extends Fragment {
 		}
 
 		@Override
-		public int getCount() {
-			// Show 3 total pages.
+		public int getCount() { // Show 3 total pages.
 			return 3;
 		}
 
@@ -154,11 +150,8 @@ public class SavedSearchesTabbedActivity extends Fragment {
 			return null;
 		}
 	}
-
-
 	
-	
-	
+	@SuppressLint("ValidFragment")
 	public class FragmentSearchTab1 extends Fragment {
 		public static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -168,13 +161,9 @@ public class SavedSearchesTabbedActivity extends Fragment {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_tabbed_dummy,
-					container, false);
-			TextView dummyTextView = (TextView) rootView
-					.findViewById(R.id.section_label);
-			dummyTextView.setText(Integer.toString(getArguments().getInt(
-					ARG_SECTION_NUMBER)));
-			dummyTextView.append("TAB ONE TEXT");
+			
+			if(vSearchScreen != null  && vSearchScreen.getParent()!= null)
+				((ViewGroup)vSearchScreen.getParent()).removeView(vSearchScreen);
 			
 			if(vSearchScreen == null)
 				SavedSearchesTabbedActivity.this.searchScreen();
@@ -183,7 +172,9 @@ public class SavedSearchesTabbedActivity extends Fragment {
 		}
 	}
 	
+	ScrollView svFavorites = null;
 	
+	@SuppressLint("ValidFragment")
 	public class FragmentSearchTab2 extends Fragment {
 		public static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -193,21 +184,18 @@ public class SavedSearchesTabbedActivity extends Fragment {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_tabbed_dummy,
-					container, false);
-			TextView dummyTextView = (TextView) rootView
-					.findViewById(R.id.section_label);
-			dummyTextView.setText(Integer.toString(getArguments().getInt(
-					ARG_SECTION_NUMBER)));
-			dummyTextView.append("TAB TWO TEXT");
 			
-			if(svResultsGlobal == null)
-				svResultsGlobal = new ScrollView(getActivity());
+			if(svFavorites != null  && svFavorites.getParent()!= null)
+				((ViewGroup)svFavorites.getParent()).removeView(svFavorites);
 			
-			return svResultsGlobal;
+			if(svFavorites == null)
+				svFavorites = SavedSearchesTabbedActivity.this.displayFavorites();
+			
+			return svFavorites;
 		}
 	}
 	
+	@SuppressLint("ValidFragment")
 	public class FragmentSearchTab3 extends Fragment {
 		public static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -217,6 +205,8 @@ public class SavedSearchesTabbedActivity extends Fragment {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
+			
+			//placeholder for now, Will become details pane
 			View rootView = inflater.inflate(R.layout.fragment_tabbed_dummy,
 					container, false);
 			TextView dummyTextView = (TextView) rootView
@@ -226,9 +216,7 @@ public class SavedSearchesTabbedActivity extends Fragment {
 			return rootView;
 		}
 	}
-	
-	
-	
+
     LinearLayout llSearchRegionAndSector;
     LinearLayout llBackgroundRegionSectorSearchResults;
     LinearLayout llBackgroundTab3;
@@ -240,10 +228,9 @@ public class SavedSearchesTabbedActivity extends Fragment {
 	ImageView ivTabBarItem4;
 	ImageView ivTabBarItem5;
 	
-	
 	Thread threadGetCacheFromDisk = null;
 	
-	View vSearchScreen = null;
+	ScrollView vSearchScreen = null;
 
 	public View searchScreen(){
 
@@ -259,14 +246,14 @@ public class SavedSearchesTabbedActivity extends Fragment {
 		tvSavedSearches.setTextSize(20);
 		tvSavedSearches.setGravity(Gravity.CENTER);
 
+		/* Was causing issues with loading did not ever go away
         getActivity().runOnUiThread(new Runnable() {				
 			@Override
 			public void run() {
 			    progress = ProgressDialog.show(getActivity(), "Loading Cached Openings",
 			    	    "Please Wait One Moment.", true);
 			}
-		});
-
+		});*/
         
 		threadGetCacheFromDisk = new Thread(){
 			@Override
@@ -290,7 +277,7 @@ public class SavedSearchesTabbedActivity extends Fragment {
 							tvSavedSearches.setTextSize(12);
 							tvSavedSearches.setGravity(Gravity.LEFT);
 							
-							progress.dismiss();
+							//progress.dismiss();
 						}
 					});
 				    
@@ -298,12 +285,13 @@ public class SavedSearchesTabbedActivity extends Fragment {
 				    String cachedString2 = "";
 				    
 				    int counter = 0;
+				    int numRecords = 0;
 
 				    String nextField = "";
 				    while(scanner.hasNext()){
 				    	nextField = scanner.next();
-				    	cachedString =  cachedString + "," + nextField;
-				    	cachedString2 = cachedString + "," + nextField;
+				    	cachedString =  cachedString + ", " + nextField;
+				    	cachedString2 = cachedString + ", " + nextField;
 				    	
 				    	if(counter == 25){
 					    	final String finalNextField = cachedString;
@@ -313,35 +301,35 @@ public class SavedSearchesTabbedActivity extends Fragment {
 								public void run() {
 									tvSavedSearches.append(finalNextField + "\n");
 									tvSavedSearches.postInvalidate();	
-									svResultsGlobal.fullScroll(View.FOCUS_DOWN);		
-									svResultsGlobal.postInvalidate();
+									vSearchScreen.fullScroll(View.FOCUS_DOWN);		
+									vSearchScreen.postInvalidate();
 								}
 							});
 					        counter = 0;
 							cachedString = "";
 
+							
 					        try {
 								Thread.sleep(3000);
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							}
-				    	}
-				    	else{
+				    	} else{
 				    		counter += 1;
 				    	}
+				    	if (!scanner.hasNext()) {
+				    		final String finalNextField = cachedString;
+				    		getActivity().runOnUiThread(new Runnable() {				
+								@Override
+								public void run() {
+									tvSavedSearches.append(finalNextField + "\n");
+									tvSavedSearches.postInvalidate();	
+									vSearchScreen.fullScroll(View.FOCUS_DOWN);		
+									vSearchScreen.postInvalidate();
+								}
+							});
+				    	}
 				    }
-
-					
-					/*
-			        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-			        StringBuilder out = new StringBuilder();
-			        String line;
-			        while ((line = reader.readLine()) != null) {
-			            out.append(line);
-			        }
-			        final String cachedString = out.toString();
-			        reader.close();
-			        */
 			        	        	
 			        try {
 						threadGetCacheFromDisk.join();
@@ -360,11 +348,7 @@ public class SavedSearchesTabbedActivity extends Fragment {
 			}			
 		};
 
-			threadGetCacheFromDisk.start();
-
-
-
-		
+		threadGetCacheFromDisk.start();
 		llSavedSearches.addView(tvSavedSearches);
 		
 		ScrollView svSavedSearches = new ScrollView(getActivity());
@@ -374,255 +358,115 @@ public class SavedSearchesTabbedActivity extends Fragment {
 		return svSavedSearches;
 	}
 	
-
+	Thread threadGetFavorites = null;
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-	public void getHTMLOnComplete(final String result, final boolean writeToCache){	
+	public ScrollView displayFavorites(){
+		final LinearLayout llfavorites = new LinearLayout(getActivity());
+		//llSavedSearches.setBackgroundResource(R.drawable.blackgradient);
+		llfavorites.setGravity(Gravity.CENTER);
 		
-		if(writeToCache){
-		    try {
-			    File fileAllOpeningsCache = new File(getActivity().getFilesDir(), "all_openings_cache.txt"); // Pass getCacheDir()
-			    if(fileAllOpeningsCache.exists()){
-			    	fileAllOpeningsCache.delete();
-			    }
-			    fileAllOpeningsCache.createNewFile();
-			    
-				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(fileAllOpeningsCache));
-				bos.write(result.getBytes());
-				bos.flush();
-				bos.close();				
-			    
-		        getActivity().runOnUiThread(new Runnable() {
-					
-					@Override
-					public void run() {
-						Toast.makeText(getActivity().getApplicationContext(), "Saved Openings to Cache", 
-								   Toast.LENGTH_LONG).show();						
-					}
-				});
-		        
-		        
-		        /*
-				getActivity().getSupportFragmentManager()
-				.beginTransaction()
-				.replace(R.id.content_frame, SavedSearchesTabbedActivity.newInstance(), SavedSearchesTabbedActivity.TAG).commit();
-		        */
-
-				
-			} catch (FileNotFoundException e) {e.printStackTrace();}
-		    catch (IOException e) {e.printStackTrace();}
-		}
-		else{
-			alOpeningsInformation.clear();
-			
-			JSONObject jObject = null;
-			try {
-				jObject = new JSONObject(result);
-				JSONArray jArray = jObject.getJSONArray("results");
-				//JSONArray jArray = new JSONArray(result);
-				for (int i=0; i < jArray.length(); i++)
-				{
-				    try {
-				    	final OpeningInformation openingInformation = new OpeningInformation();
-				    	alOpeningsInformation.add(openingInformation);
-				    	
-				        JSONObject currentJSONObject = jArray.getJSONObject(i);
-				        // Pulling items from the array
-				        
-				        openingInformation.title = currentJSONObject.getString("title");
-				        openingInformation.req_id = currentJSONObject.getString("req_id");
-				        openingInformation.country = currentJSONObject.getString("country");
-				        openingInformation.region = currentJSONObject.getString("region");
-				        openingInformation.sector = currentJSONObject.getString("sector");
-				        openingInformation.apply_date = currentJSONObject.getString("apply_date");
-				        openingInformation.know_date = currentJSONObject.getString("know_date");
-				        openingInformation.staging_start_date = currentJSONObject.getString("staging_start_date");
-				        openingInformation.featured = currentJSONObject.getBoolean("featured");
-				        openingInformation.project_description = currentJSONObject.getString("project_description");
-				        openingInformation.required_skills = currentJSONObject.getString("required_skills");
-				        openingInformation.desired_skills = currentJSONObject.getString("desired_skills");
-				        openingInformation.language_skills = currentJSONObject.getString("language_skills");
-				        openingInformation.language_skills_comments = currentJSONObject.getString("language_skills_comments");
-				        openingInformation.volunteers_requested = currentJSONObject.getInt("volunteers_requested");
-				        openingInformation.accepts_couples = currentJSONObject.getBoolean("accepts_couples");
-				        openingInformation.living_conditions_comments = currentJSONObject.getString("living_conditions_comments");
-				        openingInformation.country_medical_considerations = currentJSONObject.getString("country_medical_considerations");
-				        openingInformation.country_site_url = currentJSONObject.getString("country_site_url");
-				        openingInformation.country_flag_image = currentJSONObject.getString("country_flag_image");
-				        openingInformation.opening_url = currentJSONObject.getString("opening_url");
-				        
-				        getActivity().runOnUiThread(new Runnable() {
-							
-							@Override
-							public void run() {
-								//Toast.makeText(getActivity().getApplicationContext(), openingInformation.toString(), 
-									//	   Toast.LENGTH_LONG).show();							
-							}
-						});
-				    } catch (JSONException e) {
-				    }
-				}
-			} 
-			catch (JSONException e) {e.printStackTrace();}					
-			
-			getActivity().runOnUiThread(new Runnable() {
-				
-				@Override
-				public void run() {
-					svResultsGlobal = displayResults();				
-					mSectionsPagerAdapter.notifyDataSetChanged();
-					mViewPager.setCurrentItem(1);				
-				}
-			});
-		}		
-	}
-
-	ScrollView svResultsGlobal = null;
-	
-	
-    public void getHTML(final String urlToRead, final boolean writeToCache) {	  
-    	threadGetHTML = new Thread(){
+		final TextView tvFavoriteReq_id = new TextView(getActivity());
+		tvFavoriteReq_id.setTextColor(Color.WHITE);
+		tvFavoriteReq_id.setText("Getting favorites From Cache");
+		tvFavoriteReq_id.setTextSize(20);
+		tvFavoriteReq_id.setGravity(Gravity.CENTER);
+        
+        threadGetFavorites = new Thread(){
 			@Override
 			public void run() {
 				super.run();
-		    	URL url;
-		    	HttpURLConnection conn;
-		    	BufferedReader rd;
-		    	String line;
-		    	String result = "";
-		    	try {
-		    		url = new URL(urlToRead);
-		    		conn = (HttpURLConnection) url.openConnection();
-		    		conn.setRequestMethod("GET");
-		    		
-		    		rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		         
-		    		while ((line = rd.readLine()) != null) {
-		    			result += line;
-		    		}
-		    		
-		    		rd.close();
-		    	} 
-		    	catch (IOException e) {e.printStackTrace();} 
-		    	catch (Exception e) {e.printStackTrace();}		    			    	   
-		    	
-		    	getHTMLOnComplete(result, writeToCache);
-		    	
-		    	try {
-					threadGetHTML.join();
-				} 
-		    	catch (InterruptedException e) {e.printStackTrace();}
-			}    		
-    	};
-    	threadGetHTML.start();
-   }
-    
-    
-    public ScrollView displayResults() {
-    	final LinearLayout llResults = new LinearLayout(this.getActivity());
-    		llResults.setOrientation(LinearLayout.VERTICAL);
-    		llResults.setGravity(Gravity.CENTER);
-    		
-    		
-    		for (int i = 0; i<alOpeningsInformation.size(); i++) {
-    			LinearLayout llCard = new LinearLayout(getActivity());
-    				llCard.setOrientation(LinearLayout.VERTICAL);
-    				llCard.setGravity(Gravity.CENTER);
-    				llCard.setBackgroundColor(Color.argb(255, 0, 128, 141));
-    				llCard.setPadding(10, 10, 10, 10);
+				
+				try {					
+				    File favoritesCache = new File(getActivity().getFilesDir(), "all_favorites_cache.txt"); // Pass getCacheDir()
+				    final Scanner scanner = new Scanner(favoritesCache); 
+				    scanner.useDelimiter(",");
+				    
+			        getActivity().runOnUiThread(new Runnable() {				
+						@Override
+						public void run() {				
+							llfavorites.setGravity(Gravity.LEFT);
+							tvFavoriteReq_id.setTextSize(12);
+							tvFavoriteReq_id.setGravity(Gravity.LEFT);
+						}
+					});
+				    
+				    String cachedreq_id = "";
+				    
+				    int counter = 0;
 
-    				
-    			TextView tvOpeningTitle = new TextView(getActivity());
-    				tvOpeningTitle.setGravity(Gravity.CENTER);
-    				tvOpeningTitle.setTextSize(14);
-    				tvOpeningTitle.setText(alOpeningsInformation.get(i).title);
-    				tvOpeningTitle.append("\n" + alOpeningsInformation.get(i).region);
-    				tvOpeningTitle.append(" - " + alOpeningsInformation.get(i).country + " - ");
-    				tvOpeningTitle.append(alOpeningsInformation.get(i).sector);
-    				tvOpeningTitle.setTextColor(Color.argb(255, 0, 128, 141));
-    				tvOpeningTitle.setBackgroundColor(Color.argb(255, 225, 222, 199));
-    				
-    				
+				    String nextField = "";
+				    while(scanner.hasNext()){
+				    	nextField = scanner.next();
+				    	cachedreq_id =  cachedreq_id + "," + nextField;
+				    	
+				    	if(counter == 25){
+					    	final String finalNextField = cachedreq_id;
 
-    			ImageView ivSector = new ImageView(getActivity());
-    			if(alOpeningsInformation.get(i).sector.compareTo("Agriculture") == 0){
-    				ivSector.setBackgroundResource(R.drawable.sectoragriculture);
-    			}
-    			else if(alOpeningsInformation.get(i).sector.compareTo("Community Economic Development") == 0){
-    				ivSector.setBackgroundResource(R.drawable.sectorcommunity);
-    			}
-    			else if(alOpeningsInformation.get(i).sector.compareTo("Education") == 0){
-    				ivSector.setBackgroundResource(R.drawable.sectoreducation);
-    			}
-    			else if(alOpeningsInformation.get(i).sector.compareTo("Health") == 0){
-    				ivSector.setBackgroundResource(R.drawable.sectorhealth);
-    			}
-    			else if(alOpeningsInformation.get(i).sector.compareTo("Youth in Development") == 0){
-    				ivSector.setBackgroundResource(R.drawable.sectoryouth);	
-    			}
-    			else if(alOpeningsInformation.get(i).sector.compareTo("Environment") == 0){
-    				ivSector.setBackgroundResource(R.drawable.sectorenvironment);
-    			}
-    			else{
-    				ivSector.setBackgroundResource(R.drawable.sectoranything);	
-    			}
-    			
-    			TextView tvCardDescription = new TextView(getActivity());
-    				tvCardDescription.setGravity(Gravity.LEFT);
-    				tvCardDescription.setTextSize(12);
-    				tvCardDescription.setText("Apply Date: " + alOpeningsInformation.get(i).apply_date + "\n");
-    				tvCardDescription.append("Know by: " + alOpeningsInformation.get(i).know_date + "\n\n");
-    				tvCardDescription.append("Required Skills: " + alOpeningsInformation.get(i).required_skills + "\n");
-    				tvCardDescription.append("Desired Skills: " + alOpeningsInformation.get(i).desired_skills + "\n");
-    				tvCardDescription.append("Language Skills: " + alOpeningsInformation.get(i).language_skills + "\n");
-    				tvCardDescription.setTextColor(Color.argb(255, 0, 128, 141));
-    				tvCardDescription.setBackgroundColor(Color.argb(255, 225, 222, 199));    				
-    				
-    				
-        			View vP = new View(getActivity());
-        			vP.setBackgroundColor(Color.argb(0,0,0,0));
-        			llResults.addView(vP, 10, 10);
-        			
-    				llCard.addView(tvOpeningTitle, (int)(supportUtility.pointScreenDimensions.x*.9), (int)(supportUtility.pointScreenDimensions.x*.9*.2));
-    				vP = new View(getActivity());
-        			vP.setBackgroundColor(Color.argb(0,0,0,0));
-    				llCard.addView(vP, 10, 10);
-    				llCard.addView(ivSector,  (int)(supportUtility.pointScreenDimensions.x*.9*.2),  (int)(supportUtility.pointScreenDimensions.x*.9*.2));
-    				vP = new View(getActivity());
-        			vP.setBackgroundColor(Color.argb(0,0,0,0));
-    				llCard.addView(vP, 10, 10);
-    				llCard.addView(tvCardDescription);
-    				
-    				vP = new View(getActivity());
-        			vP.setBackgroundColor(Color.argb(0,0,0,0));
-        			llResults.addView(vP, 10, 10);
-    				
-    			llResults.addView(llCard);    			    			
-    		}
-    	final ScrollView svResults = new ScrollView(this.getActivity());
-    	svResults.addView(llResults);
-    	svResultsGlobal = svResults;
-    	return svResults;
-    }
+					        getActivity().runOnUiThread(new Runnable() {				
+								@Override
+								public void run() {
+									tvFavoriteReq_id.append(finalNextField + "\n");
+									tvFavoriteReq_id.postInvalidate();	
+									svFavorites.fullScroll(View.FOCUS_DOWN);		
+									svFavorites.postInvalidate();
+								}
+							});
+					        counter = 0;
+							cachedreq_id = "";
+
+					        try {
+								Thread.sleep(3000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+				    	}
+				    	else{
+				    		counter += 1;
+				    	}
+				    	
+				    	if (!scanner.hasNext()) {
+				    		final String finalNextField = cachedreq_id;
+				    		getActivity().runOnUiThread(new Runnable() {				
+								@Override
+								public void run() {
+									tvFavoriteReq_id.append(finalNextField + "\n");
+									tvFavoriteReq_id.postInvalidate();	
+									svFavorites.fullScroll(View.FOCUS_DOWN);		
+									svFavorites.postInvalidate();
+								}
+							});
+				    	}
+				    }
+			        	        	
+			        try {
+			        	threadGetFavorites.join();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}			
+		};
+
+		threadGetFavorites.start();
+		
+		llfavorites.addView(tvFavoriteReq_id);
+		
+		ScrollView favorites = new ScrollView(getActivity());
+		
+		favorites.addView(llfavorites);
+		svFavorites = favorites;
+		return favorites;
+	
+	}
+
 	
 
     
@@ -690,10 +534,6 @@ public class SavedSearchesTabbedActivity extends Fragment {
 	TextView tvHTML = null;
 	Thread threadGetHTML;
 	
-	
-	
-	
-	
 	public boolean isOnline() {
 	    ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -702,9 +542,5 @@ public class SavedSearchesTabbedActivity extends Fragment {
 	    }
 	    return false;
 	}
-	
-	
-	
-	
 
 }

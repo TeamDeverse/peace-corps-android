@@ -2,9 +2,12 @@ package com.richardwonseokshin.peacecorpsv2;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -16,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -35,6 +39,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -56,6 +61,7 @@ public class SearchTabbedFragment extends Fragment {
 	ProgressDialog progress;
 	
 	public static final String TAG = SearchTabbedFragment.class.getSimpleName();
+	public String KEYWORD = "";
 	
 	/**
 	 * The {@link ViewPager} that will host the section contents.
@@ -83,8 +89,6 @@ public class SearchTabbedFragment extends Fragment {
 					public int getItemPosition(Object object) {
 						return SectionsPagerAdapter.POSITION_NONE;// super.getItemPosition(object);
 					}
-			
-			
 		};
 		
 		mViewPager = (ViewPager) v.findViewById(R.id.pager);
@@ -157,10 +161,7 @@ public class SearchTabbedFragment extends Fragment {
 		}
 	}
 
-
-	
-	
-	
+	@SuppressLint("ValidFragment")
 	public class FragmentSearchTab1 extends Fragment {
 		public static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -171,23 +172,12 @@ public class SearchTabbedFragment extends Fragment {
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
 			
-			/*
-			View rootView = inflater.inflate(R.layout.fragment_tabbed_dummy,
-					container, false);
-			TextView dummyTextView = (TextView) rootView
-					.findViewById(R.id.section_label);
-			dummyTextView.setText(Integer.toString(getArguments().getInt(
-					ARG_SECTION_NUMBER)));
-			dummyTextView.append("TAB ONE TEXT");
-			*/
-			
-			
-			
 			return SearchTabbedFragment.this.searchScreen();
 		}
 	}
 	
 	
+	@SuppressLint("ValidFragment")
 	public class FragmentSearchTab2 extends Fragment {
 		public static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -197,15 +187,6 @@ public class SearchTabbedFragment extends Fragment {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			/*
-			View rootView = inflater.inflate(R.layout.fragment_tabbed_dummy,
-					container, false);
-			TextView dummyTextView = (TextView) rootView
-					.findViewById(R.id.section_label);
-			dummyTextView.setText(Integer.toString(getArguments().getInt(
-					ARG_SECTION_NUMBER)));
-			dummyTextView.append("TAB TWO TEXT");
-			*/
 			
 			if(svResultsGlobal != null  && svResultsGlobal.getParent()!= null)
 				((ViewGroup)svResultsGlobal.getParent()).removeView(svResultsGlobal);
@@ -219,6 +200,7 @@ public class SearchTabbedFragment extends Fragment {
 		}
 	}
 	
+	@SuppressLint("ValidFragment")
 	public class FragmentSearchTab3 extends Fragment {
 		public static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -228,14 +210,7 @@ public class SearchTabbedFragment extends Fragment {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			/*View rootView = inflater.inflate(R.layout.fragment_tabbed_dummy,
-					container, false);
-			TextView dummyTextView = (TextView) rootView
-					.findViewById(R.id.section_label);
-			dummyTextView.setText(Integer.toString(getArguments().getInt(
-					ARG_SECTION_NUMBER)));
-			dummyTextView.append("TAB THREE TEXT");
-			*/
+
 			if(svResultsSelectionDetailsGlobal != null && svResultsSelectionDetailsGlobal.getParent()!= null)
 				((ViewGroup)svResultsSelectionDetailsGlobal.getParent()).removeView(svResultsSelectionDetailsGlobal);
 			
@@ -245,9 +220,7 @@ public class SearchTabbedFragment extends Fragment {
 			return svResultsSelectionDetailsGlobal;
 		}
 	}
-	
-	
-	
+
     LinearLayout llSearchRegionAndSector;
     LinearLayout llBackgroundRegionSectorSearchResults;
     LinearLayout llBackgroundTab3;
@@ -489,8 +462,8 @@ public class SearchTabbedFragment extends Fragment {
 	       tvSearchButton.setBackgroundColor(Color.argb(255,204,102,51));
 	       tvSearchButton.postInvalidate();
 	       
-	       progress = ProgressDialog.show(getActivity(), "Loading",
-	            "Please Wait One Moment.", true);
+	       //progress = ProgressDialog.show(getActivity(), "Loading",
+	       //     "Please Wait One Moment.", true);
 	       
 	       // Example http get request for regions: http://www.peacecorps.gov/api/v1/geography/regions/?region=easteurope&region=africa
 	       // Example http get request for openings: http://www.peacecorps.gov/api/v1/openings/?region=asia&region=africa&sector=education
@@ -499,52 +472,45 @@ public class SearchTabbedFragment extends Fragment {
 	       String htmlQueryURL = ""; 
 	       int numRegionsSelected = 0;
 	       for(int i = 1; i < 9; i++){
-	        if(arraySelectedRegions[0] == 1){//user selected "anywhere", combine all other regions
-	         if(i == 1){
-	          htmlQueryURL = htmlQueryURL + "region=" + arrayRegionSlugs[i];
-	         }
-	         else{
-	          htmlQueryURL = htmlQueryURL + "&region=" + arrayRegionSlugs[i];
-	         }
-	        }
-	        else{//user selected 1 or more regions, but did not select "anywhere"
-	         if(arraySelectedRegions[i] == 1){
-	          if(numRegionsSelected == 0){
-	           htmlQueryURL = htmlQueryURL + "region=" + arrayRegionSlugs[i];
-	          }
-	          else{
-	           htmlQueryURL = htmlQueryURL + "&region=" + arrayRegionSlugs[i];
-	          }
-	          numRegionsSelected += 1;
-	         }
-	        }
+	    	   if(arraySelectedRegions[0] == 1){//user selected "anywhere", combine all other regions
+	    		   if(i == 1){
+	    			   htmlQueryURL = htmlQueryURL + "region=" + arrayRegionSlugs[i];
+	    		   } else{
+	    			   htmlQueryURL = htmlQueryURL + "&region=" + arrayRegionSlugs[i];
+	    		   }
+	    	   } else{//user selected 1 or more regions, but did not select "anywhere"
+	    		   if(arraySelectedRegions[i] == 1){
+	    			   if(numRegionsSelected == 0){
+	    				   htmlQueryURL = htmlQueryURL + "region=" + arrayRegionSlugs[i];
+	    			   } else{
+	    				   htmlQueryURL = htmlQueryURL + "&region=" + arrayRegionSlugs[i];
+	    			   }
+	    			   numRegionsSelected += 1;
+	    		   }
+	    	   }
 	       }
 	       
 	       for(int i = 1; i < 7; i++){
-	        if(arraySelectedSectors[0] == 1){//user selected "anywhere", combine all other regions
-	         htmlQueryURL = htmlQueryURL + "&sector=" + arraySectorSlugs[i];
-	        }
-	        else if(arraySelectedSectors[i] == 1){//user selected 1 or more regions, but did not select "anywhere"
-	         htmlQueryURL = htmlQueryURL + "&sector=" + arraySectorSlugs[i];
-	        }
+	    	   if(arraySelectedSectors[0] == 1){//user selected "anywhere", combine all other regions
+	    		   htmlQueryURL = htmlQueryURL + "&sector=" + arraySectorSlugs[i];
+	    	   } else if(arraySelectedSectors[i] == 1){//user selected 1 or more regions, but did not select "anywhere"
+	    		   htmlQueryURL = htmlQueryURL + "&sector=" + arraySectorSlugs[i];
+	    	   }
 	       }
 	       
 	       //http://www.peacecorps.gov/api/v1/geography/countries/?sector=health&region=asia
 
 	       htmlQueryURL += "&current=true";
+	       htmlQueryURL = htmlQueryBaseURL + htmlQueryURL;
 	       
-	       /*
-	    try {
-	     htmlQueryURL = URLEncoder.encode(htmlQueryURL, "UTF-8");
-	    } catch (UnsupportedEncodingException e) {
-	     e.printStackTrace();
-	    }
-	    */
-	    
-	    htmlQueryURL = htmlQueryBaseURL + htmlQueryURL;
-	   
-	       getHTML(htmlQueryURL, false, true);  
-	       
+	       if(isOnline()){
+		        progress = ProgressDialog.show(getActivity(), "Loading", "Please Wait One Moment.", true);
+		        getHTML(htmlQueryURL, false, true); 
+		    } else{
+		    	Toast.makeText(getActivity().getApplicationContext(), "Pleace Check Internet Connection", 
+		    			Toast.LENGTH_LONG).show();
+		    }
+	       //getHTML(htmlQueryURL, false, true);  
 	       break;
 	  }
 	  return true;
@@ -573,32 +539,71 @@ public class SearchTabbedFragment extends Fragment {
 	 
 	 @Override
 	 public boolean onTouch(View v, MotionEvent event) {
-	  switch(event.getAction()){
-	   case MotionEvent.ACTION_DOWN: 
-	    tvCacheButton.setBackgroundColor(Color.argb(255,164,62,11));
-	    tvCacheButton.postInvalidate();
-	    break;
-	   case MotionEvent.ACTION_MOVE: break;
-	   case MotionEvent.ACTION_UP: 
-	    tvCacheButton.setBackgroundColor(Color.argb(255,204,102,51));
-	    tvCacheButton.postInvalidate();
-	       
+		 switch(event.getAction()){
+	 		case MotionEvent.ACTION_DOWN: 
+	 			tvCacheButton.setBackgroundColor(Color.argb(255,164,62,11));
+	 			tvCacheButton.postInvalidate();
+			    break;
+	 		case MotionEvent.ACTION_MOVE: 
+	 			break;
+	 		case MotionEvent.ACTION_UP: 
+	 			tvCacheButton.setBackgroundColor(Color.argb(255,204,102,51));
+	 			tvCacheButton.postInvalidate();
+	 	
+	 	       String htmlQueryBaseURL = "http://www.peacecorps.gov/api/v1/openings/?";
+		       String htmlQueryURL = ""; 
+		       int numRegionsSelected = 0;
+		       for(int i = 1; i < 9; i++){
+		    	   if(arraySelectedRegions[0] == 1){//user selected "anywhere", combine all other regions
+		    		   if(i == 1){
+		    			   htmlQueryURL = htmlQueryURL + "region=" + arrayRegionSlugs[i];
+		    		   } else{
+		    			   htmlQueryURL = htmlQueryURL + "&region=" + arrayRegionSlugs[i];
+		    		   }
+		    	   } else{//user selected 1 or more regions, but did not select "anywhere"
+		    		   if(arraySelectedRegions[i] == 1){
+		    			   if(numRegionsSelected == 0){
+		    				   htmlQueryURL = htmlQueryURL + "region=" + arrayRegionSlugs[i];
+		    			   } else{
+		    				   htmlQueryURL = htmlQueryURL + "&region=" + arrayRegionSlugs[i];
+		    			   }
+		    			   numRegionsSelected += 1;
+		    		   }
+		    	   }
+		       }
+		       
+		       for(int i = 1; i < 7; i++){
+		    	   if(arraySelectedSectors[0] == 1){//user selected "anywhere", combine all other regions
+		    		   htmlQueryURL = htmlQueryURL + "&sector=" + arraySectorSlugs[i];
+		    	   } else if(arraySelectedSectors[i] == 1){//user selected 1 or more regions, but did not select "anywhere"
+		    		   htmlQueryURL = htmlQueryURL + "&sector=" + arraySectorSlugs[i];
+		    	   }
+		       }
+		       
+		       //http://www.peacecorps.gov/api/v1/geography/countries/?sector=health&region=asia
 
-	       
+		       htmlQueryURL += "&current=true";
+		       htmlQueryURL = htmlQueryBaseURL + htmlQueryURL;
+		       
+		       if(isOnline()){
+			        progress = ProgressDialog.show(getActivity(), "Loading", "Please Wait One Moment.", true);
+			        getHTML(htmlQueryURL, true, true); 
+			    } else{
+			    	Toast.makeText(getActivity().getApplicationContext(), "Pleace Check Internet Connection", 
+			    			Toast.LENGTH_LONG).show();
+			    }
+		       //getHTML(htmlQueryURL, false, true);  
+		       break;
+	 			
+	 	/*
 	    if(isOnline()){
-	        progress = ProgressDialog.show(getActivity(), "Loading",
-	             "Please Wait One Moment.", true);
-	        
-	     getHTML("http://www.peacecorps.gov/api/v1/openings/", true,true); 
-	     
-	    } 
-	    else{
-	     Toast.makeText(getActivity().getApplicationContext(), "Pleace Check Internet Connection",
-	          Toast.LENGTH_LONG).show();
+	        progress = ProgressDialog.show(getActivity(), "Loading", "Please Wait One Moment.", true);
+	        getHTML("http://www.peacecorps.gov/api/v1/openings/", true,true); 
+	    } else{
+	    	Toast.makeText(getActivity().getApplicationContext(), "Pleace Check Internet Connection", 
+	    			Toast.LENGTH_LONG).show();
 	    }
-	    
-	    
-	       break;
+	       break;*/
 	  }
 	  return true;
 	 }
@@ -607,6 +612,9 @@ public class SearchTabbedFragment extends Fragment {
 	llSearchRegionAndSector.addView(tvCacheButton, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/8);
 	svSearchRegionAndSector.addView(llSearchRegionAndSector);
 
+	View vPaddingCache2 = new View(this.getActivity());
+	vPaddingCache2.setBackgroundColor(Color.argb(0,0,0,0));
+	llSearchRegionAndSector.addView(vPaddingCache2, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/32);
 
 
 
@@ -627,15 +635,108 @@ public class SearchTabbedFragment extends Fragment {
 	  arrayImageViewsSectors[i].setBackgroundColor(Color.argb(0,0,0,0));
 	 }
 	}
+	
+	final EditText keywordEntry = new EditText(this.getActivity());
+	//keywordEntry.setBackgroundColor(Color.argb(255,204,102,51));
+	keywordEntry.setTextColor(Color.WHITE);
+	KEYWORD = keywordEntry.getText().toString();
 
+	
+	llSearchRegionAndSector.addView(keywordEntry, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/8);
 
+	final TextView keywordSearch = new TextView(this.getActivity());
+	keywordSearch.setText("Keyword Search");
+	keywordSearch.setTextColor(Color.WHITE);
+	keywordSearch.setTextSize(16);
+	keywordSearch.setGravity(Gravity.CENTER);
+	keywordSearch.setBackgroundColor(Color.argb(255,204,102,51));
+	keywordSearch.setOnTouchListener(new OnTouchListener() {
+	 
+	 @Override
+	 public boolean onTouch(View v, MotionEvent event) {
+	  switch(event.getAction()){
+	   case MotionEvent.ACTION_DOWN: 
+		   keywordSearch.setBackgroundColor(Color.argb(255,164,62,11));
+	    keywordSearch.postInvalidate();
+	    break;
+	   case MotionEvent.ACTION_MOVE: break;
+	   case MotionEvent.ACTION_UP: 
+		   keywordSearch.setBackgroundColor(Color.argb(255,204,102,51));
+		   keywordSearch.postInvalidate();
+	       
 
+	       
+	    if(isOnline()){
+	        progress = ProgressDialog.show(getActivity(), "Loading",
+	             "Please Wait One Moment.", true);
+	        KEYWORD = keywordEntry.getText().toString();
+	     getHTML("http://www.peacecorps.gov/api/v1/openings/?keyword=" + KEYWORD, true,true); 
+	     
+	    } 
+	    else{
+	     Toast.makeText(getActivity().getApplicationContext(), "Pleace Check Internet Connection",
+	          Toast.LENGTH_LONG).show();
+	    }
+	    
+	    
+	       break;
+	  }
+	  return true;
+	 }
+	});
 
+	llSearchRegionAndSector.addView(keywordSearch, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/8);
+
+	final TextView clearCache = new TextView(this.getActivity());
+	clearCache.setText("Clear Cache");
+	clearCache.setTextColor(Color.WHITE);
+	clearCache.setTextSize(16);
+	clearCache.setGravity(Gravity.CENTER);
+	clearCache.setBackgroundColor(Color.argb(255,204,102,51));
+	clearCache.setOnTouchListener(new OnTouchListener() {
+	 
+	 @Override
+	 public boolean onTouch(View v, MotionEvent event) {
+	  switch(event.getAction()){
+	   case MotionEvent.ACTION_DOWN: 
+		   clearCache.setBackgroundColor(Color.argb(255,164,62,11));
+	    keywordSearch.postInvalidate();
+	    break;
+	   case MotionEvent.ACTION_MOVE: break;
+	   case MotionEvent.ACTION_UP: 
+		   clearCache.setBackgroundColor(Color.argb(255,204,102,51));
+		   clearCache.postInvalidate();
+		   clear();
+	       break;
+	  }
+	  
+	  
+	  return true;
+	 }
+	});
+
+	llSearchRegionAndSector.addView(clearCache, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/8);
+
+	
 	return svSearchRegionAndSector;
 
 	}
 	 	
+	public void clear() {
+		try {
+			File fileAllOpeningsCache = new File(getActivity().getFilesDir(), "all_openings_cache.txt"); // Pass getCacheDir()
+			if(fileAllOpeningsCache.exists()){
+				fileAllOpeningsCache.delete();
+			}
+			fileAllOpeningsCache.createNewFile();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	    catch (IOException e) {
+	    	e.printStackTrace();
+	    }
 	
+	}
 	
 	
 	
@@ -711,7 +812,8 @@ public class SearchTabbedFragment extends Fragment {
 		    try {
 		    	String result = "";
 		    	for(int i = 0; i < alOpeningsInformation.size(); i++){
-		    		result += alOpeningsInformation.get(i).toCSVString();
+		    		result += alOpeningsInformation.get(i).req_id;
+		    		//result += alOpeningsInformation.get(i).toCSVString();  //will take all of the info, change to this if necessary
 		    		if(i != alOpeningsInformation.size() - 1){
 		    			result += ",";
 		    		}
@@ -726,8 +828,6 @@ public class SearchTabbedFragment extends Fragment {
 				bos.write(result.getBytes());
 				bos.flush();
 				bos.close();
-				
-
 			    
 		        getActivity().runOnUiThread(new Runnable() {
 					
@@ -740,84 +840,10 @@ public class SearchTabbedFragment extends Fragment {
 
 					}
 				});
-		        
-		        
-		        
-
 				
 			} catch (FileNotFoundException e) {e.printStackTrace();}
 		    catch (IOException e) {e.printStackTrace();}
 		}
-		
-		/*
-		else{
-			
-			alOpeningsInformation.clear();
-			
-			JSONObject jObject = null;
-			try {
-				jObject = new JSONObject(result);
-				JSONArray jArray = jObject.getJSONArray("results");
-				//JSONArray jArray = new JSONArray(result);
-				for (int i=0; i < jArray.length(); i++)
-				{
-				    try {
-				    	final OpeningInformation openingInformation = new OpeningInformation();
-				    	alOpeningsInformation.add(openingInformation);
-				    	
-				        JSONObject currentJSONObject = jArray.getJSONObject(i);
-				        // Pulling items from the array
-				        
-				        openingInformation.title = currentJSONObject.getString("title");
-				        openingInformation.req_id = currentJSONObject.getString("req_id");
-				        openingInformation.country = currentJSONObject.getString("country");
-				        openingInformation.region = currentJSONObject.getString("region");
-				        openingInformation.sector = currentJSONObject.getString("sector");
-				        openingInformation.apply_date = currentJSONObject.getString("apply_date");
-				        openingInformation.know_date = currentJSONObject.getString("know_date");
-				        openingInformation.staging_start_date = currentJSONObject.getString("staging_start_date");
-				        openingInformation.featured = currentJSONObject.getBoolean("featured");
-				        openingInformation.project_description = currentJSONObject.getString("project_description");
-				        openingInformation.required_skills = currentJSONObject.getString("required_skills");
-				        openingInformation.desired_skills = currentJSONObject.getString("desired_skills");
-				        openingInformation.language_skills = currentJSONObject.getString("language_skills");
-				        openingInformation.language_skills_comments = currentJSONObject.getString("language_skills_comments");
-				        openingInformation.volunteers_requested = currentJSONObject.getInt("volunteers_requested");
-				        openingInformation.accepts_couples = currentJSONObject.getBoolean("accepts_couples");
-				        openingInformation.living_conditions_comments = currentJSONObject.getString("living_conditions_comments");
-				        openingInformation.country_medical_considerations = currentJSONObject.getString("country_medical_considerations");
-				        openingInformation.country_site_url = currentJSONObject.getString("country_site_url");
-				        openingInformation.country_flag_image = currentJSONObject.getString("country_flag_image");
-				        openingInformation.opening_url = currentJSONObject.getString("opening_url");
-				        
-				        getActivity().runOnUiThread(new Runnable() {
-							
-							@Override
-							public void run() {
-								//Toast.makeText(getActivity().getApplicationContext(), openingInformation.toString(), 
-									//	   Toast.LENGTH_LONG).show();							
-							}
-						});
-				    } catch (JSONException e) {
-				    }
-				}
-			} 
-			catch (JSONException e) {e.printStackTrace();}		
-					
-			
-			getActivity().runOnUiThread(new Runnable() {
-				
-				@Override
-				public void run() {
-					svResultsGlobal = displayResults();				
-					mSectionsPagerAdapter.notifyDataSetChanged();
-					mViewPager.setCurrentItem(1);	
-					
-					progress.dismiss();
-				}
-			});
-		}		
-		*/
 	}
 
 	ScrollView svResultsGlobal = null;
@@ -881,117 +907,16 @@ public class SearchTabbedFragment extends Fragment {
 				} catch (JSONException e1) {
 					e1.printStackTrace();
 				}
-				
-		    	
-		    	/*
-		    	try {
-					this.join();
-				} 
-		    	catch (InterruptedException e) {e.printStackTrace();}
-		    	*/
 			}    		
     	};
     	threadGetHTML.start();
    }
     ArrayList <String> alStringJSONObjects = new ArrayList<String>();  
     
- /*  
-    public ScrollView displayResults() {
-    	final LinearLayout llResults = new LinearLayout(this.getActivity());
-    		llResults.setOrientation(LinearLayout.VERTICAL);
-    		llResults.setGravity(Gravity.CENTER);
-    		
-    		
-    		for (int i = 0; i<alOpeningsInformation.size(); i++) {
-    			LinearLayout llCard = new LinearLayout(getActivity());
-    				llCard.setOrientation(LinearLayout.VERTICAL);
-    				llCard.setGravity(Gravity.CENTER);
-    				llCard.setBackgroundColor(Color.argb(255, 0, 128, 141));
-    				llCard.setPadding(10, 10, 10, 10);
-
-    				
-    			TextView tvOpeningTitle = new TextView(getActivity());
-    				tvOpeningTitle.setGravity(Gravity.CENTER);
-    				tvOpeningTitle.setTextSize(14);
-    				tvOpeningTitle.setText(alOpeningsInformation.get(i).title);
-    				tvOpeningTitle.append("\n" + alOpeningsInformation.get(i).region);
-    				tvOpeningTitle.append(" - " + alOpeningsInformation.get(i).country + " - ");
-    				tvOpeningTitle.append(alOpeningsInformation.get(i).sector);
-    				tvOpeningTitle.setTextColor(Color.argb(255, 0, 128, 141));
-    				tvOpeningTitle.setBackgroundColor(Color.argb(255, 225, 222, 199));
-    				
-    				
-
-    			ImageView ivSector = new ImageView(getActivity());
-    			if(alOpeningsInformation.get(i).sector.compareTo("Agriculture") == 0){
-    				ivSector.setBackgroundResource(R.drawable.sectoragriculture);
-    			}
-    			else if(alOpeningsInformation.get(i).sector.compareTo("Community Economic Development") == 0){
-    				ivSector.setBackgroundResource(R.drawable.sectorcommunity);
-    			}
-    			else if(alOpeningsInformation.get(i).sector.compareTo("Education") == 0){
-    				ivSector.setBackgroundResource(R.drawable.sectoreducation);
-    			}
-    			else if(alOpeningsInformation.get(i).sector.compareTo("Health") == 0){
-    				ivSector.setBackgroundResource(R.drawable.sectorhealth);
-    			}
-    			else if(alOpeningsInformation.get(i).sector.compareTo("Youth in Development") == 0){
-    				ivSector.setBackgroundResource(R.drawable.sectoryouth);	
-    			}
-    			else if(alOpeningsInformation.get(i).sector.compareTo("Environment") == 0){
-    				ivSector.setBackgroundResource(R.drawable.sectorenvironment);
-    			}
-    			else{
-    				ivSector.setBackgroundResource(R.drawable.sectoranything);	
-    			}
-    			
-    			TextView tvCardDescription = new TextView(getActivity());
-    				tvCardDescription.setGravity(Gravity.LEFT);
-    				tvCardDescription.setTextSize(12);
-    				tvCardDescription.setText("Apply Date: " + alOpeningsInformation.get(i).apply_date + "\n");
-    				tvCardDescription.append("Know by: " + alOpeningsInformation.get(i).know_date + "\n\n");
-    				tvCardDescription.append("Required Skills: " + alOpeningsInformation.get(i).required_skills + "\n");
-    				tvCardDescription.append("Desired Skills: " + alOpeningsInformation.get(i).desired_skills + "\n");
-    				tvCardDescription.append("Language Skills: " + alOpeningsInformation.get(i).language_skills + "\n");
-    				tvCardDescription.setTextColor(Color.argb(255, 0, 128, 141));
-    				tvCardDescription.setBackgroundColor(Color.argb(255, 225, 222, 199));    				
-    				
-    				
-        			View vP = new View(getActivity());
-        			vP.setBackgroundColor(Color.argb(0,0,0,0));
-        			llResults.addView(vP, 10, 10);
-        			
-    				llCard.addView(tvOpeningTitle, (int)(supportUtility.pointScreenDimensions.x*.9), (int)(supportUtility.pointScreenDimensions.x*.9*.2));
-    				vP = new View(getActivity());
-        			vP.setBackgroundColor(Color.argb(0,0,0,0));
-    				llCard.addView(vP, 10, 10);
-    				llCard.addView(ivSector,  (int)(supportUtility.pointScreenDimensions.x*.9*.2),  (int)(supportUtility.pointScreenDimensions.x*.9*.2));
-    				vP = new View(getActivity());
-        			vP.setBackgroundColor(Color.argb(0,0,0,0));
-    				llCard.addView(vP, 10, 10);
-    				llCard.addView(tvCardDescription);
-    				
-    				vP = new View(getActivity());
-        			vP.setBackgroundColor(Color.argb(0,0,0,0));
-        			llResults.addView(vP, 10, 10);
-    				
-    			llResults.addView(llCard);    			    			
-    		}
-    	final ScrollView svResults = new ScrollView(this.getActivity());
-    	svResults.addView(llResults);
-    	svResultsGlobal = svResults;
-    	return svResults;
-    }
-	
-*/
-    
-    
-    
     public ScrollView displayResults() {
         final LinearLayout llResults = new LinearLayout(this.getActivity());
         llResults.setOrientation(LinearLayout.VERTICAL);
         llResults.setGravity(Gravity.CENTER);
-        
         
         TextView tvHeader = new TextView(getActivity());
         tvHeader.setGravity(Gravity.CENTER);
@@ -999,7 +924,6 @@ public class SearchTabbedFragment extends Fragment {
         tvHeader.setText(Html.fromHtml("<br><b>" + "Showing " + numberOfOpenings + " Openings" + "</b><br>"));
         tvHeader.setTextColor(Color.argb(255, 0, 128, 141));
         tvHeader.setBackgroundColor(Color.argb(255, 225, 222, 199));
-
         
         View vPadding = new View(getActivity());
         vPadding.setBackgroundColor(Color.argb(0,0,0,0));        
@@ -1010,7 +934,6 @@ public class SearchTabbedFragment extends Fragment {
         vPadding = new View(getActivity());
         vPadding.setBackgroundColor(Color.argb(0,0,0,0));
         llResults.addView(vPadding, 10, 10);
-        
 
         for (int i = 0; i<alOpeningsInformation.size(); i++) {
             final LinearLayout llCard = new LinearLayout(getActivity());
@@ -1048,7 +971,7 @@ public class SearchTabbedFragment extends Fragment {
                 ivSector.setBackgroundResource(R.drawable.sectoranything);
             }
             llImage.addView(ivSector, (int)(supportUtility.pointScreenDimensions.x*.15),  (int)(supportUtility.pointScreenDimensions.x*.15));
-
+            
             TextView tvOpeningTitle = new TextView(getActivity());
             tvOpeningTitle.setGravity(Gravity.LEFT);
             tvOpeningTitle.setTextSize(14);
@@ -1097,8 +1020,6 @@ public class SearchTabbedFragment extends Fragment {
                         case MotionEvent.ACTION_UP:
                             llCard.setBackgroundColor(Color.argb(225, 225, 222, 199));
                             llCard.postInvalidate();
-                            
-
 
                             LinearLayout llDetailsImage = new LinearLayout(getActivity());
                             llDetailsImage.setOrientation(LinearLayout.VERTICAL);
@@ -1130,6 +1051,36 @@ public class SearchTabbedFragment extends Fragment {
                             }
                             llDetailsImage.addView(ivSector, (int)(supportUtility.pointScreenDimensions.x*.15),  (int)(supportUtility.pointScreenDimensions.x*.15));
 
+                            final TextView favoriteButton = new TextView(getActivity());
+                            favoriteButton.setText("Favorite");
+                            favoriteButton.setTextColor(Color.WHITE);
+                            favoriteButton.setTextSize(10);
+                            favoriteButton.setGravity(Gravity.CENTER);
+                            favoriteButton.setBackgroundColor(Color.argb(255,204,102,51));
+                            favoriteButton.setOnTouchListener(new OnTouchListener() {
+                        	 
+                        	 @Override
+                        	 public boolean onTouch(View v, MotionEvent event) {
+                        	  switch(event.getAction()){
+                        	   case MotionEvent.ACTION_DOWN: 
+                        		   favoriteButton.setBackgroundColor(Color.argb(255,164,62,11));
+                        		   favoriteButton.postInvalidate();
+                        	    break;
+                        	   case MotionEvent.ACTION_MOVE: 
+                        		   break;
+                        	   case MotionEvent.ACTION_UP: 
+                        		   favoriteButton.setBackgroundColor(Color.argb(255,204,102,51));
+                        		   favoriteButton.postInvalidate();
+                        		   //break;
+                        		   addToFavorites(alOpeningsInformation.get(iFinal).req_id);
+                        	  }
+                        	  
+                        	  return true;
+                        	 }
+                        	});
+
+                            llDetailsImage.addView(favoriteButton, supportUtility.pointScreenDimensions.x, supportUtility.pointScreenDimensions.x/8);
+                            
                             TextView tvOpeningDetailsTitle = new TextView(getActivity());
                             tvOpeningDetailsTitle.setGravity(Gravity.LEFT);
                             tvOpeningDetailsTitle.setTextSize(14);
@@ -1154,12 +1105,11 @@ public class SearchTabbedFragment extends Fragment {
                             tvOpeningDetailsTitle.append(Html.fromHtml("<b>Living Conditions Comments: </b>" + alOpeningsInformation.get(iFinal).living_conditions_comments + "<br><br>"));
                             tvOpeningDetailsTitle.append(Html.fromHtml("<b>Country Medical Considerations: </b>" + alOpeningsInformation.get(iFinal).country_medical_considerations + "<br><br>"));
                             tvOpeningDetailsTitle.append(Html.fromHtml("<b>Openings URL: " + "<a href=\"alOpeningsInformation.get(iFinal).opening_url\">alOpeningsInformation.get(iFinal).opening_url</a>"));
+                            //http://www.peacecorps.gov/openings/3267br/
                             tvOpeningDetailsTitle.setTextColor(Color.argb(255, 0, 128, 141));
                             tvOpeningDetailsTitle.setBackgroundColor(Color.argb(255, 225, 222, 199));
                             tvOpeningDetailsTitle.setClickable(true);
                             tvOpeningDetailsTitle.setMovementMethod(LinkMovementMethod.getInstance());
-                            
-                            
 
                             LinearLayout llDetailsCard = new LinearLayout(getActivity());                           
 	                            llDetailsCard = new LinearLayout(getActivity());
@@ -1176,7 +1126,6 @@ public class SearchTabbedFragment extends Fragment {
 
             				mSectionsPagerAdapter.notifyDataSetChanged();
             				mViewPager.setCurrentItem(2);	
-
                     		
                     		break;
                         default: break;
@@ -1191,6 +1140,65 @@ public class SearchTabbedFragment extends Fragment {
         svResults.addView(llResults);
         svResultsGlobal = svResults;
         return svResults;
+    }
+    
+    public boolean addToFavorites(String req_id) {
+	    try {
+		    File favoritesCache = new File(getActivity().getFilesDir(), "all_favorites_cache.txt"); // Pass getCacheDir()
+		    FileWriter fw = new FileWriter(favoritesCache, true);
+	    	BufferedWriter bw = new BufferedWriter(fw);
+	    	
+		    if(favoritesCache.exists()){
+		    	try {
+		    		bw.write(req_id + ", ");
+		    		bw.flush();
+		    	} catch(IOException ioe) {
+		    		ioe.printStackTrace();
+		    	} finally { //closes the file
+		    	     if (bw != null) try {
+		    	         bw.close();
+		    	      } catch (IOException ioe2) {
+		    	      }
+		    	}
+		    } else {
+		    	favoritesCache.createNewFile();
+		    	try {
+		    		bw.write(req_id + ", ");
+		    		bw.flush();
+		    	} catch(IOException ioe) {
+		    		ioe.printStackTrace();
+		    	} finally { //closes the file
+		    	     if (bw != null) try {
+		    	         bw.close();
+		    	      } catch (IOException ioe2) {
+		    	         // just ignore it
+		    	      }
+		    	}
+		    }
+	        getActivity().runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					Toast.makeText(getActivity().getApplicationContext(), "Saved Favorite to Cache", 
+							   Toast.LENGTH_LONG).show();		
+					progress.dismiss();
+				}
+			});
+	        /* for debugging
+	        BufferedReader br = new BufferedReader(new FileReader(new File(getActivity().getFilesDir(), "all_favorites_cache.txt")));
+	        String str = "";
+	        while ((str=br.readLine())!=null)
+	        {
+	               System.out.println(str);
+	        }
+	        br.close();*/
+	        
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    	return true;
     }
     
     public String formatRegionResult(String region) {
@@ -1277,10 +1285,6 @@ public class SearchTabbedFragment extends Fragment {
 	ArrayList<OpeningInformation>alOpeningsInformation = new ArrayList<OpeningInformation>();
 	TextView tvHTML = null;
 	
-	
-	
-	
-	
 	public boolean isOnline() {
 	    ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -1289,9 +1293,4 @@ public class SearchTabbedFragment extends Fragment {
 	    }
 	    return false;
 	}
-	
-	
-	
-	
-
 }
